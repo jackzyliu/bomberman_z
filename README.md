@@ -1,4 +1,4 @@
 CIS120-Final-Game
 =================
 
-See name
+This git is for the final game project for CIS120.
