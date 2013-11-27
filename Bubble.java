@@ -8,17 +8,18 @@ import javax.imageio.ImageIO;
 
 
 public class Bubble extends GameObj {
-	public static final String img_file = "CartoonBomb.jpg";
+	public static final String img_file = "Bombs/Bomb_f01.png";
 	public static final int SIZE = 30;
-	public int duration = 100;
-	
+	public int duration = 500;
+	public boolean available = true;
 	
 	
 	
 	private static BufferedImage img;
 	 
 	public Bubble(int courtWidth, int courtHeight, int center_x, int center_y) {
-		super(0, 0, center_x - SIZE/2, center_y - SIZE/2, SIZE, SIZE, courtWidth, courtHeight);
+		super(0, 0, center_x - SIZE/2, center_y - SIZE/2, 
+				SIZE, SIZE, courtWidth, courtHeight);
 	try {
 		if (img == null) {
 			img = ImageIO.read(new File(img_file));
@@ -30,8 +31,8 @@ public class Bubble extends GameObj {
 
 	@Override
 	public void draw(Graphics g){
-	
-	 g.drawImage(img, pos_x, pos_y, width, height, null); 
+		g.drawImage(img, pos_x, pos_y, width, height, null); 
+		
 	}
 	
 	public void countdown(){

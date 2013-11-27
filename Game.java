@@ -37,6 +37,7 @@ public class Game implements Runnable {
         
         frame.add(court, BorderLayout.CENTER);
 
+        /*
         // Reset button
         final JPanel control_panel = new JPanel();
         frame.add(control_panel, BorderLayout.NORTH);
@@ -53,7 +54,7 @@ public class Game implements Runnable {
                 }
             });
         control_panel.add(reset);
-
+		*/
         // Put the frame on the screen
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -135,9 +135,9 @@ public class GameObj {
 	 * @return whether an intersection will occur.
 	 */
 	public boolean willIntersectY(GameObj obj){
-		int next_y = pos_y + v_y;
+		int next_y = pos_y + height/2 + v_y;
 		int next_obj_y = obj.pos_y + obj.v_y;
-		return (next_y + height >= next_obj_y 
+		return (next_y + height/2 >= next_obj_y 
 				&& next_obj_y + obj.height >= next_y);
 	}
 	
@@ -211,8 +211,8 @@ public class GameObj {
 	public Direction hitObj(GameObj other) {
 
 		if (this.willIntersectX(other) && this.willIntersectY(other)) {
-			double dx = other.pos_x + other.width /2 - (pos_x + width /2);
-			double dy = other.pos_y + other.height/2 - (pos_y + height/2);
+			double dx = other.pos_x + other.width /2 - getCenter().x;
+			double dy = other.pos_y + other.height/2 - getCenter().y;
 
 			double theta = Math.atan2(dy, dx);
 			double diagTheta = Math.atan2(height, width);
@@ -260,33 +260,5 @@ public class GameObj {
 		return new Point (pos_x + width/2, pos_y + height /2 );
 	}
 	
-	/**
-	 * 
-	 * @param other game object
-	 * @return the relative position of the OTHER compared to this object while
-	 * the two objects are overlapping
-	 */
-	public Direction relativePos(GameObj other){
-		int ob_x = getCenter().x;
-		int ob_y = getCenter().y;
-		int min_x = other.getCenter().x - other.width/4;
-		int min_y = other.getCenter().y - other.height/4;
-		int max_x = other.getCenter().x + other.width/4;
-		int max_y = other.getCenter().y + other.height/4;
-		if (ob_x + v_x < min_x){
-			return Direction.RIGHT;
-		}
-		else if (ob_x + v_x > max_x){
-			return Direction.LEFT;
-		}
-		if (ob_y + v_y > max_y){
-			return Direction.UP;
-		}
-		else if (ob_y + v_y < min_y){
-			return Direction.DOWN;
-		}
-		else {
-			return null;
-		}
-	}
+	
 }

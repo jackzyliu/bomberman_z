@@ -38,7 +38,7 @@ public class GameCourt extends JPanel {
 	private Iterator<Bubble> itr;    // the iterator to iterator over bubbles
 	private Bubble last_bubble;		 // the last bubble dropped;
 	private Point[][] grid = new Point[10][10];
-	
+	private Map map = new Map();
 	
 	// Game constants
 	public static final int COURT_WIDTH = 400;
@@ -68,18 +68,7 @@ public class GameCourt extends JPanel {
 	public GameCourt(JLabel status){//should consider take in a map as an argument
 		// creates border around the court area, JComponent method
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		JPanel squares[][] = new JPanel[10][10];
-        setLayout(new GridLayout(10, 10));
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
-                squares[i][j] = new JPanel();
-                squares[i][j].setBorder
-                	(BorderFactory.createLineBorder(Color.BLACK));;
-                squares[i][j].setOpaque(false);
-                add(squares[i][j]);
-            }
-        }
-        
+		
         initGrid();
 
         // The timer is an object which triggers an action periodically
@@ -113,10 +102,9 @@ public class GameCourt extends JPanel {
 			private void keyActions(){
 				//if space is pressed && the character walked out of the 
 				//previous bubble.
-				if(keypressed.contains(KeyEvent.VK_SPACE) 
-						&& !character.onBubble){
-					last_bubble = 
-							character.dropBubble(COURT_HEIGHT,COURT_WIDTH,grid);
+				if(keypressed.contains(KeyEvent.VK_SPACE) && !character.onBubble){
+					last_bubble = character.dropBubble
+							(COURT_HEIGHT,COURT_WIDTH,grid,bubbles);
 				}
 				//if only ONE of the left and right arrow keys are pressed 
 				if(keypressed.contains(KeyEvent.VK_LEFT) 
@@ -172,7 +160,7 @@ public class GameCourt extends JPanel {
 	 */
 	public void reset() {
 
-		character = new Character(COURT_WIDTH, COURT_HEIGHT);
+		character = new Character(COURT_WIDTH, COURT_HEIGHT, map);
 		bubbles = new ArrayDeque<Bubble>();
 		last_bubble = null;
 		playing = true;
@@ -194,10 +182,10 @@ public class GameCourt extends JPanel {
 				Bubble bubble = itr.next(); 
 				bubble.countdown();
 			}
-			if (last_bubble != null){
+			if (last_bubble!=null){
 				last_bubble.countdown();
 				//System.out.println(last_bubble.duration);
-				if (last_bubble.duration ==0){
+				if (last_bubble.duration <=0){
 					last_bubble = null;
 					character.onBubble = false;
 				}
@@ -215,6 +203,7 @@ public class GameCourt extends JPanel {
 	@Override 
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
+		map.paint(g);
 		//draw bubbles first
 		itr = bubbles.iterator();
 		while (itr.hasNext()){
