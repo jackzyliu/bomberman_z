@@ -1,8 +1,3 @@
-/**
- * CIS 120 HW10
- * (c) University of Pennsylvania
- * @version 2.0, Mar 2013
- */
 
 import java.awt.Graphics;
 import java.awt.Point;

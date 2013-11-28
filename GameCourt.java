@@ -28,49 +28,26 @@ import java.util.Iterator;
 public class GameCourt extends JPanel {
 
 	// the state of the game logic
-	private Character character;          // the character, keyboard control
+
 	public boolean playing = false;  // whether the game is running
 	private JLabel status;       // Current status text (i.e. Running...)
 	private HashSet<Integer> keypressed = new HashSet<Integer>();
 		//to keep track the keys pressed
-	private Deque<Bubble> bubbles = new ArrayDeque<Bubble>();
-		//to keep track of the bubbles dropped
-	private Iterator<Bubble> itr;    // the iterator to iterator over bubbles
-	private Bubble last_bubble;		 // the last bubble dropped;
-	private Point[][] grid = new Point[10][10];
+
 	private Map map = new Map();
+	private Character character;          // the character, keyboard control
 	
-	// Game constants
-	public static final int COURT_WIDTH = 400;
-	public static final int COURT_HEIGHT = 400;
 	// Update interval for timer in milliseconds 
 	public static final int INTERVAL = 5; 
 
 	
 	
-	
-	/**
-	 * Initialize the grid by indexing the center of each square
-	 */
-	private void initGrid(){
-		for (int i = 0 ; i < 10; i ++){
-			for (int j = 0 ; j < 10; j ++){
-				int width = COURT_WIDTH/10;
-				int height = COURT_HEIGHT/10;
-				int x = width * j + width/2;
-				int y = height* i + height/2;
-				grid[i][j] = new Point(x, y);
-			}
-		}
-	}
-	
+
 	
 	public GameCourt(JLabel status){//should consider take in a map as an argument
 		// creates border around the court area, JComponent method
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		
-        initGrid();
-
         // The timer is an object which triggers an action periodically
         // with the given INTERVAL. One registers an ActionListener with
         // this timer, whose actionPerformed() method will be called 
@@ -102,9 +79,8 @@ public class GameCourt extends JPanel {
 			private void keyActions(){
 				//if space is pressed && the character walked out of the 
 				//previous bubble.
-				if(keypressed.contains(KeyEvent.VK_SPACE) && !character.onBubble){
-					last_bubble = character.dropBubble
-							(COURT_HEIGHT,COURT_WIDTH,grid,bubbles);
+				if(keypressed.contains(KeyEvent.VK_SPACE) ){
+					character.dropBubble();
 				}
 				//if only ONE of the left and right arrow keys are pressed 
 				if(keypressed.contains(KeyEvent.VK_LEFT) 
@@ -138,7 +114,7 @@ public class GameCourt extends JPanel {
 						character.resetVer();
 					}
 				}
-				character.interactWithBubbles(bubbles, last_bubble);
+				character.interactWithLastBubble();
 			}
 			public void keyPressed(KeyEvent e){
 				keypressed.add(e.getKeyCode());
@@ -160,9 +136,9 @@ public class GameCourt extends JPanel {
 	 */
 	public void reset() {
 
-		character = new Character(COURT_WIDTH, COURT_HEIGHT, map);
-		bubbles = new ArrayDeque<Bubble>();
-		last_bubble = null;
+		character = new Character(map, 1);
+		character.bubbles = new ArrayDeque<Bubble>();
+		character.last_bubble = null;
 		playing = true;
 		status.setText("Running...");
 		// Make sure that this component has the keyboard focus
@@ -175,27 +151,9 @@ public class GameCourt extends JPanel {
      */
 	void tick(){
 		if (playing) {
+			character.interactWithLastBubble();
 			character.move();
-			character.interactWithBubbles(bubbles, last_bubble);
-			itr = bubbles.iterator();
-			while (itr.hasNext()){
-				Bubble bubble = itr.next(); 
-				bubble.countdown();
-			}
-			if (last_bubble!=null){
-				last_bubble.countdown();
-				//System.out.println(last_bubble.duration);
-				if (last_bubble.duration <=0){
-					last_bubble = null;
-					character.onBubble = false;
-				}
-			}
-			if (!bubbles.isEmpty()){
-				System.out.println(bubbles.getFirst().duration);
-				if(bubbles.getFirst().duration <= 0){
-					bubbles.removeFirst();
-				}
-			}
+			character.trackBubbles();
 			repaint();
 		} 
 	}
@@ -204,21 +162,12 @@ public class GameCourt extends JPanel {
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
 		map.paint(g);
-		//draw bubbles first
-		itr = bubbles.iterator();
-		while (itr.hasNext()){
-			Bubble bubble_tmp = itr.next();
-			bubble_tmp.draw(g);
-		}
-		//do not draw twice
-		if(last_bubble != null && !bubbles.contains(last_bubble)){
-			last_bubble.draw(g);
-		}
+		character.paintBubbles(g);
 		character.draw(g);
 	}
 	
 	@Override
 	public Dimension getPreferredSize(){
-		return new Dimension(COURT_WIDTH,COURT_HEIGHT);
+		return new Dimension(Map.COURT_WIDTH, Map.COURT_HEIGHT);
 	}
 }

@@ -19,6 +19,8 @@ public class Map extends JPanel {
 	public static final char WALL = 'w';
 	public static final char BLOCK = 'b';
 	public static final char GROUND = 'g';
+	public static final char BUBBLE = 'o';        //neutral bubble
+	public static final char EXPLOSION = 'e';		//explosion area
 	
 	public static final String WALL_img_file = "Blocks/SolidBlock.png";
 	public static final String BLOCK_img_file = "Blocks/ExplodableBlock.png";
@@ -26,31 +28,34 @@ public class Map extends JPanel {
 	
 	public static final int WIDTH = 10;
 	public static final int HEIGHT = 10;
-	
 	public static final int TILE_SIZE = 40;
 	
+	public static final int COURT_WIDTH = 400;
+	public static final int COURT_HEIGHT = 400;
 	
-	
-	public char[][] grid = new char[HEIGHT][WIDTH];
+	public char[][] map = new char[HEIGHT][WIDTH];
+	public Point[][] grid = new Point[HEIGHT][WIDTH];
 	
 	private static BufferedImage wall_img;
 	private static BufferedImage block_img;
 	private static BufferedImage ground_img;
 	
+	
 	public Map(){
+		//allocating the components
 		for (int i = 0; i < HEIGHT; i++) {
 			for (int j = 0 ; j <WIDTH; j ++) {
 				if(i%2==0 && j%2==0){
-					grid[i][j] = 'w';
+					map[i][j] = 'w';
 				}
 				else{
-					grid[i][j] = 'g';
+					map[i][j] = 'g';
 				}
 				
 			}	
 		}
 	
-		
+		//load image
 		try{
 			if (wall_img == null) {
 				wall_img = ImageIO.read(new File(WALL_img_file));
@@ -64,12 +69,23 @@ public class Map extends JPanel {
 		} catch (IOException e) {
 			System.out.println("Internal Error:" + e.getMessage());
 		}
+		
+		//allocating points to drop bombs
+		for (int i = 0 ; i < 10; i ++){
+			for (int j = 0 ; j < 10; j ++){
+				int x = TILE_SIZE * j + TILE_SIZE /2;
+				int y = TILE_SIZE * i + TILE_SIZE/2;
+				grid[i][j] = new Point(x, y);
+			}
+		}
+		
+		
 	}
 	
 	public void paint(Graphics g){
 		for (int i = 0 ; i < HEIGHT; i ++){
 			for(int j = 0 ; j < WIDTH; j++){
-				switch(grid[i][j]){
+				switch(map[i][j]){
 				case 'w': 
 					g.drawImage(wall_img, j*TILE_SIZE, i*TILE_SIZE, 
 							TILE_SIZE, TILE_SIZE, null);
@@ -78,7 +94,7 @@ public class Map extends JPanel {
 					g.drawImage(block_img, j*TILE_SIZE, i*TILE_SIZE, 
 							TILE_SIZE, TILE_SIZE, null);
 					break;
-				case 'g':
+				default:
 					g.drawImage(ground_img, j*TILE_SIZE, i*TILE_SIZE, 
 							TILE_SIZE, TILE_SIZE, null);
 					break;
@@ -88,7 +104,7 @@ public class Map extends JPanel {
 	}
 	
 	
-	public boolean isBlocked(int x, int y){
+	public boolean isBlocked(int x, int y, int player_code){
 		
 		int i = (int) y/TILE_SIZE ;
 		//System.out.println(i);
@@ -108,9 +124,42 @@ public class Map extends JPanel {
 			j = 9;
 		}
 		
-		return grid[i][j] == 'w';
-		
-		
+		return (map[i][j] != 'g' && map[i][j] != 'e' 
+					&& map[i][j] != (char)player_code);
+		//the tile is not an open floor unit
+	}
+	
+	/**
+	 * This method receives the last bubble any player drops and store the 
+	 * position in terms of the player's code so that the player can have
+	 * a special interaction with it.
+	 * @param i
+	 * @param j
+	 * @param player's code(the player that drops the bomb)  
+	 * @return
+	 */
+	public boolean receiveInitBubbles(int i, int j, int player_code){
+		if (map[i][j] != 'g'){
+			return false;
+		}
+		else{
+			map[i][j] = (char)player_code;
+			return true;
+		}
+	}
+	
+	public void changeToNeutralBubbles(int i, int j, int player_code){
+		if (map[i][j] == (char)player_code){
+			map[i][j] = 'o';
+		}
+	}
+	
+	public void startExplosion(int i, int j){
+		map[i][j] = 'e';
+	}
+	
+	public void endExplosion(int i, int j){
+		map[i][j] = 'g';
 	}
 		
 }
