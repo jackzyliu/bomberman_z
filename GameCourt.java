@@ -35,10 +35,11 @@ public class GameCourt extends JPanel {
 		//to keep track the keys pressed
 
 	private Map map = new Map();
-	private Character character;          // the character, keyboard control
+	private Player player1;          // the character, keyboard control
+	private Player player2;
 	
 	// Update interval for timer in milliseconds 
-	public static final int INTERVAL = 5; 
+	public static final int INTERVAL = 10; 
 
 	
 	
@@ -76,55 +77,103 @@ public class GameCourt extends JPanel {
 			 * perform a series of actions related to a combination of keys
 			 *  pressed
 			 */
-			private void keyActions(){
+			private void keyActions_player1(){
 				//if space is pressed && the character walked out of the 
 				//previous bubble.
-				if(keypressed.contains(KeyEvent.VK_SPACE) ){
-					character.dropBubble();
+				if(keypressed.contains(KeyEvent.VK_ENTER) ){
+					player1.dropBubble();
 				}
 				//if only ONE of the left and right arrow keys are pressed 
 				if(keypressed.contains(KeyEvent.VK_LEFT) 
 						&& keypressed.contains(KeyEvent.VK_RIGHT)){
-					character.resetHor();
+					player1.resetHor();
 				}
 				else {
 					if (keypressed.contains(KeyEvent.VK_LEFT)){
-						character.setDir(Direction.LEFT);
+						player1.setDir(Direction.LEFT);
 					}
 					else if (keypressed.contains(KeyEvent.VK_RIGHT)){
-						character.setDir(Direction.RIGHT);
+						player1.setDir(Direction.RIGHT);
 					}
 					else{
-						character.resetHor();
+						player1.resetHor();
 					}
 				}
 				//if only ONE of the up and down arrow keys are pressed 
 				if(keypressed.contains(KeyEvent.VK_UP)
 						&& keypressed.contains(KeyEvent.VK_DOWN)){
-					character.resetVer();
+					player1.resetVer();
 				}	
 				else{
 					if (keypressed.contains(KeyEvent.VK_UP)){
-						character.setDir(Direction.UP);
+						player1.setDir(Direction.UP);
 					}
 					else if (keypressed.contains(KeyEvent.VK_DOWN)){
-						character.setDir(Direction.DOWN);
+						player1.setDir(Direction.DOWN);
 					}
 					else{
-						character.resetVer();
+						player1.resetVer();
 					}
 				}
-				character.interactWithLastBubble();
+				player1.collectItems();
+				player1.interactWithLastBubble();
+			}
+			/**Helper:
+			 * perform a series of actions related to a combination of keys
+			 *  pressed
+			 */
+			private void keyActions_player2(){
+				//if space is pressed && the character walked out of the 
+				//previous bubble.
+				if(keypressed.contains(KeyEvent.VK_SHIFT) ){
+					player2.dropBubble();
+				}
+				//if only ONE of the left and right arrow keys are pressed 
+				if(keypressed.contains(KeyEvent.VK_A) 
+						&& keypressed.contains(KeyEvent.VK_D)){
+					player2.resetHor();
+				}
+				else {
+					if (keypressed.contains(KeyEvent.VK_A)){
+						player2.setDir(Direction.LEFT);
+					}
+					else if (keypressed.contains(KeyEvent.VK_D)){
+						player2.setDir(Direction.RIGHT);
+					}
+					else{
+						player2.resetHor();
+					}
+				}
+				//if only ONE of the up and down arrow keys are pressed 
+				if(keypressed.contains(KeyEvent.VK_W)
+						&& keypressed.contains(KeyEvent.VK_S)){
+					player2.resetVer();
+				}	
+				else{
+					if (keypressed.contains(KeyEvent.VK_W)){
+						player2.setDir(Direction.UP);
+					}
+					else if (keypressed.contains(KeyEvent.VK_S)){
+						player2.setDir(Direction.DOWN);
+					}
+					else{
+						player2.resetVer();
+					}
+				}
+				player2.collectItems();
+				player2.interactWithLastBubble();
 			}
 			public void keyPressed(KeyEvent e){
 				keypressed.add(e.getKeyCode());
-				keyActions();
+				keyActions_player1();
+				keyActions_player2();
 			}
 			public void keyReleased(KeyEvent e){
 				if (!keypressed.isEmpty()){
 					keypressed.remove(e.getKeyCode());
 				}
-				keyActions();
+				keyActions_player1();
+				keyActions_player2();
 			}
 		});
 		this.status = status;
@@ -136,9 +185,8 @@ public class GameCourt extends JPanel {
 	 */
 	public void reset() {
 
-		character = new Character(map, 1);
-		character.bubbles = new ArrayDeque<Bubble>();
-		character.last_bubble = null;
+		player1 = new Player(map, 1);
+		player2 = new Player(map, 2);
 		playing = true;
 		status.setText("Running...");
 		// Make sure that this component has the keyboard focus
@@ -151,19 +199,31 @@ public class GameCourt extends JPanel {
      */
 	void tick(){
 		if (playing) {
-			character.interactWithLastBubble();
-			character.move();
-			character.trackBubbles();
+			player1.interactWithLastBubble();
+			player1.move();
+			player1.trackBubbles();
+			player2.interactWithLastBubble();
+			player2.move();
+			player2.trackBubbles();
+			map.trackExplosions();
+			//playing = !character.isExploded();
+			
 			repaint();
 		} 
+		else{
+			status.setText("You died.");
+		}
 	}
 
 	@Override 
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
 		map.paint(g);
-		character.paintBubbles(g);
-		character.draw(g);
+		map.drawAreaExplosionAndItems(g);
+		player1.paintBubbles(g);
+		player2.paintBubbles(g);
+		player1.draw(g);
+		player2.draw(g);
 	}
 	
 	@Override
