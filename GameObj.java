@@ -98,9 +98,9 @@ public class GameObj {
 
 	
 	/**
-	 * Determine whether this game object will intersect another in the x
-	 * component in the next time step, assuming that both objects continue 
-	 * with their current velocity.
+	 * Determine whether this game object will intersect another in the
+	 * next time step, assuming that both objects continue with their 
+	 * current velocity.
 	 * 
 	 * Intersection is determined by comparing bounding boxes. If the 
 	 * bounding boxes (for the next time step) overlap, then an 
@@ -109,32 +109,17 @@ public class GameObj {
 	 * @param obj : other object
 	 * @return whether an intersection will occur.
 	 */
-	public boolean willIntersectX(GameObj obj){
+	public boolean willIntersect(GameObj obj){
 		int next_x = pos_x + v_x;
+		int next_y = pos_y + v_y;
 		int next_obj_x = obj.pos_x + obj.v_x;
-		return (next_x + width >= next_obj_x
-				&& next_obj_x + obj.width >= next_x);
-	}
-	
-
-	/**
-	 * Determine whether this game object will intersect another in the y
-	 * component in the next time step, assuming that both objects continue 
-	 * with their current velocity.
-	 * 
-	 * Intersection is determined by comparing bounding boxes. If the 
-	 * bounding boxes (for the next time step) overlap, then an 
-	 * intersection is considered to occur.
-	 * 
-	 * @param obj : other object
-	 * @return whether an intersection will occur.
-	 */
-	public boolean willIntersectY(GameObj obj){
-		int next_y = pos_y + height/2 + v_y;
 		int next_obj_y = obj.pos_y + obj.v_y;
-		return (next_y + height/2 >= next_obj_y 
+		return (next_x + width >= next_obj_x
+				&& next_y + height >= next_obj_y
+				&& next_obj_x + obj.width >= next_x 
 				&& next_obj_y + obj.height >= next_y);
 	}
+
 	
 	/**
 	 * This method stops an object that is about to hit another object
@@ -205,14 +190,15 @@ public class GameObj {
 	 */
 	public Direction hitObj(GameObj other) {
 
-		if (this.willIntersectX(other) && this.willIntersectY(other)) {
-			double dx = other.pos_x + other.width /2 - getCenter().x;
-			double dy = other.pos_y + other.height/2 - getCenter().y;
+		if (this.willIntersect(other)) {
+			double dx = other.getCenter().x - getCenter().x;
+			double dy = other.getCenter().y - getCenter().y;
 
 			double theta = Math.atan2(dy, dx);
 			double diagTheta = Math.atan2(height, width);
 
 			if ( -diagTheta <= theta && theta <= diagTheta ) {
+				
 				return Direction.RIGHT;
 			} else if ( diagTheta <= theta 
 					&& theta <= Math.PI - diagTheta ) {
@@ -255,5 +241,6 @@ public class GameObj {
 		return new Point (pos_x + width/2, pos_y + height /2 );
 	}
 	
+
 	
 }

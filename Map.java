@@ -27,6 +27,7 @@ public class Map {
 	public static final char BLOCK_BREAK = 'x';   
 											//the block that is about to break
 	public static final char GROUND = 'g';
+	public static final char TREE = 't';
 	public static final char BUBBLE = 'o';        //neutral bubble
 	public static final char EXPLOSION = 'e';		//explosion area
 	public static final char SPEEDUP = 's';			//speedup item
@@ -34,28 +35,35 @@ public class Map {
 	public static final char NUMUP = 'n';			//num up item
 	
 	public static final String WALL_img_file = "Blocks/SolidBlock.png";
+	public static final String TREE_img_file = "Blocks/tree.png";
 	public static final String BLOCK_img_file = "Blocks/ExplodableBlock.png";
 	public static final String GROUND_img_file = "Blocks/BackgroundTile.png";
 	
-	public static final int WIDTH = 10;
-	public static final int HEIGHT = 10;
+	public static final int WIDTH = 11;
+	public static final int HEIGHT = 11;
 	public static final int TILE_SIZE = 40;
 	
-	public static final int COURT_WIDTH = 400;
-	public static final int COURT_HEIGHT = 400;
+	public static final int COURT_WIDTH = 440;
+	public static final int COURT_HEIGHT = 440;
+	
+	public static final int PLAYER1_INIT_X = 2*TILE_SIZE;
+	public static final int PLAYER1_INIT_Y = 2*TILE_SIZE;
+	public static final int PLAYER2_INIT_X = COURT_WIDTH - 3*TILE_SIZE;
+	public static final int PLAYER2_INIT_Y = COURT_HEIGHT - 3*TILE_SIZE;
 	
 	public char[][] map = new char[HEIGHT][WIDTH];
 	public Point[][] grid = new Point[HEIGHT][WIDTH];
 	
 	private static BufferedImage wall_img;
+	private static BufferedImage tree_img;
 	private static BufferedImage block_img;
 	private static BufferedImage ground_img;
 
-	
-	
+
 	private Deque<Explosion> explosions;	
 	private Iterator<Explosion> itr_e;    
 	 // the iterator to iterator over explosions
+	private Hashtable<Point, Unwalkable> unwalkables;
 
 	
 	public Hashtable<Point, Powerup> items;
@@ -67,6 +75,7 @@ public class Map {
 		explosions = new ArrayDeque<Explosion>();
 		//player_initBubbles = new Hashtable<Integer, Bubble>();
 		items = new Hashtable<Point, Powerup>();
+		unwalkables = new Hashtable<Point, Unwalkable>();
 		
 		//allocating points to drop bombs and items
 		for (int i = 0 ; i < HEIGHT; i ++){
@@ -81,14 +90,16 @@ public class Map {
 		//allocating the components
 		for (int i = 0; i < HEIGHT; i++) {
 			for (int j = 0 ; j <WIDTH; j ++) {
-				
-				if(i%2==0 && j%2==0){
-					map[i][j] = 'b';
-					
+				if(i == 0 || j == 0 || i == HEIGHT - 1 || j == WIDTH - 1){
+					map[i][j] = TREE;
+				}
+				else if(i%2!=0 && j%2!=0){
+					map[i][j] = BLOCK;
 				}
 				else{
 					map[i][j] = GROUND;
 				}
+				addMapParam(i,j);
 				assignItems(i,j);
 			}	
 		}
@@ -103,6 +114,9 @@ public class Map {
 			if (ground_img == null) {
 				ground_img = ImageIO.read(new File(GROUND_img_file));
 			}
+			if (tree_img == null){
+				tree_img = ImageIO.read(new File(TREE_img_file));
+			}
 		} catch (IOException e) {
 			System.out.println("Internal Error:" + e.getMessage());
 		}
@@ -112,6 +126,17 @@ public class Map {
 		
 	}
 	
+	/**
+	 * This helper method adds new unwalkable tiles 
+	 * @param i
+	 * @param j
+	 */
+	private void addMapParam(int i, int j){
+		if (map[i][j] == WALL || map[i][j] == BLOCK || map[i][j] == TREE){
+			unwalkables.put(new Point (i, j), new Unwalkable (i, j));
+		}
+		
+	}
 	
 	/**
 	 * This method randomly assigns items to blocks 
@@ -119,7 +144,7 @@ public class Map {
 	 * @param j
 	 */
 	private void assignItems(int i, int j){
-		if(map[i][j] == 'b'){
+		if(map[i][j] == BLOCK){
 			
 			int min = 0;
 			int max = 9;
@@ -176,7 +201,20 @@ public class Map {
 		else return -1;
 	}
 	
-	
+	/**
+	 * This method returns a player's initial position based on their "code"
+	 * @param player_code
+	 * @return
+	 */
+	public Point getPlayerInitPosition(int player_code){
+		if(player_code == 1){
+			return new Point (PLAYER1_INIT_X, PLAYER1_INIT_Y);
+		}
+		else if(player_code == 2){
+			return new Point (PLAYER2_INIT_Y, PLAYER2_INIT_Y);
+		}
+		else return null;
+	}
 	/**
 	 * This method paints the map BACKGROUND
 	 */
@@ -184,11 +222,11 @@ public class Map {
 		for (int i = 0 ; i < HEIGHT; i ++){
 			for(int j = 0 ; j < WIDTH; j++){
 				switch(map[i][j]){
-				case 'w': 
+				case WALL: 
 					g.drawImage(wall_img, j*TILE_SIZE, i*TILE_SIZE, 
 							TILE_SIZE, TILE_SIZE, null);
 					break;
-				case 'b':
+				case BLOCK:
 					g.drawImage(block_img, j*TILE_SIZE, i*TILE_SIZE, 
 							TILE_SIZE, TILE_SIZE, null);
 					break;
@@ -196,9 +234,30 @@ public class Map {
 					g.drawImage(ground_img, j*TILE_SIZE, i*TILE_SIZE, 
 							TILE_SIZE, TILE_SIZE, null);
 					break;
+				
+				}
+				//paint tree ON TOP OF GROUND
+				if(map[i][j] == TREE){
+					g.drawImage(tree_img, j*TILE_SIZE, i*TILE_SIZE, 
+							TILE_SIZE, TILE_SIZE, null);
+				
 				}
 			}
 		}
+	}
+	
+	/**
+	 * This method takes in any single pair of coordinate and convert it to the 
+	 * indices of the map array.
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public Point toIndex(int x, int y){
+		int i = clip((int) y/TILE_SIZE, 'h') ;
+		int j = clip((int) x/TILE_SIZE, 'w') ;
+		
+		return new Point(i,j);
 	}
 	
 	/**
@@ -210,41 +269,19 @@ public class Map {
 	 */
 	public boolean isBlocked(int x, int y, int player_code){
 		
-		int i = clip((int) y/TILE_SIZE, 'h') ;
-		int j = clip((int) x/TILE_SIZE, 'w') ;
+		int i = toIndex(x,y).x;
+		int j = toIndex(x,y).y;
 		
 		return (map[i][j] == WALL 
 				|| map[i][j] == BUBBLE 
-				|| map[i][j] == BLOCK);
+				|| map[i][j] == BLOCK) 
+				&& map[i][j] != (char)player_code;
 		//the tile is not an open floor unit or an explosion or the bubble that
 		//the player is already standing on or items
 	}
 	
-	
-	
-	/**
-	 * This method tracks the explosions, including evoking their countdowns
-	 * as well as removing them
-	 */
-	public void trackExplosions(){
-	//not using iterator to allow "concurrent modification"
-		
-		//use iterator to ensure efficiency
-		itr_e = explosions.iterator();
-		while(itr_e.hasNext()){
-			Explosion e = itr_e.next();
-			e.countdown();
-		}
-			
-		if(!explosions.isEmpty()){
-			Explosion first = explosions.getFirst();
-			if (first.getDuration() <=0 ){
-				endExplosion(first.getIndex().x, first.getIndex().y, first.getRange());
-				explosions.removeFirst();
-			}
-		}
 
-	}
+	
 	
 	/**
 	 * This method receives the last bubble any player drops and store the 
@@ -275,8 +312,7 @@ public class Map {
 	public void changeToNeutralBubbles(int i, int j, int player_code){
 		if (map[i][j] == (char)player_code){
 			map[i][j] = BUBBLE;
-			//bubbles.add(player_initBubbles.get(player_code));
-			//player_initBubbles.remove(player_code);
+			unwalkables.put(new Point (i,j), new Unwalkable(i,j));
 		}
 	}
 	
@@ -287,8 +323,8 @@ public class Map {
 	 * @return
 	 */
 	public boolean isExploded(Bubble bubble){
-		int i = clip((int)bubble.getCenter().y/TILE_SIZE, 'h');
-		int j = clip((int)bubble.getCenter().x/TILE_SIZE, 'w');
+		int i = toIndex(bubble.getCenter().x, bubble.getCenter().y).x;
+		int j = toIndex(bubble.getCenter().x, bubble.getCenter().y).y;
 		
 		return map[i][j] == EXPLOSION;
 	}
@@ -300,8 +336,10 @@ public class Map {
 	 * @param range
 	 */
 	public void startExplosion(int i, int j, int range){
+		unwalkables.remove(new Point (i,j));
+		
 		for (int h = i ; h >= clip(i - range, 'h') ; h--){
-			if(map[h][j] != WALL){
+			if(isExplodable(h, j)){
 				char tile = map[h][j];
 				if(tile == BLOCK){   // explosions do not go through blocks
 					map[h][j] = BLOCK_BREAK;
@@ -315,7 +353,7 @@ public class Map {
 		}
 		
 		for (int h = i ; h <= clip(i + range, 'h') ; h++){
-			if(map[h][j] != WALL){
+			if(isExplodable(h,j)){
 				char tile = map[h][j];
 				if(tile == BLOCK){ // explosions do not go through blocks
 					map[h][j] = BLOCK_BREAK;
@@ -328,7 +366,7 @@ public class Map {
 		}
 		
 		for (int w = j ; w >= clip(j - range, 'w') ; w--){
-			if(map[i][w] != WALL){
+			if(isExplodable(i,w)){
 				char tile = map[i][w];
 				if(tile == BLOCK){   // explosions do not go through blocks
 					map[i][w] = BLOCK_BREAK;
@@ -341,7 +379,7 @@ public class Map {
 		}
 		
 		for (int w = j ; w <= clip(j + range, 'w') ; w++){
-			if(map[i][w] != WALL){
+			if(isExplodable(i,w)){
 				char tile = map[i][w];
 				if(tile == BLOCK){   // explosions do not go through blocks
 					map[i][w] = BLOCK_BREAK;
@@ -354,8 +392,7 @@ public class Map {
 		}
 		
 		explosions.add(new Explosion
-				(Map.COURT_WIDTH, Map.COURT_HEIGHT, grid[i][j].x, grid[i][j].y, 
-						range, this));
+				( grid[i][j].x, grid[i][j].y, range, this));
 	}
 	
 
@@ -408,11 +445,34 @@ public class Map {
 			else{
 				map[i][j] = GROUND;
 			}
+			unwalkables.remove(new Point (i,j));
 		}
 	}
 		
 	
-	
+	/**
+	 * This method tracks the explosions, including evoking their countdowns
+	 * as well as removing them
+	 */
+	public void trackExplosions(){
+	//not using iterator to allow "concurrent modification"
+		
+		//use iterator to ensure efficiency
+		itr_e = explosions.iterator();
+		while(itr_e.hasNext()){
+			Explosion e = itr_e.next();
+			e.countdown();
+		}
+			
+		if(!explosions.isEmpty()){
+			Explosion first = explosions.getFirst();
+			if (first.getDuration() <=0 ){
+				endExplosion(first.getIndex().x, first.getIndex().y, first.getRange());
+				explosions.removeFirst();
+			}
+		}
+
+	}
 	
 	/**
 	 * draws the area effect of explosions on the MAP as well as the items
@@ -438,6 +498,14 @@ public class Map {
 		
 	}
 	
+	
+	public boolean isExplodable(int i, int j){
+		return (map[i][j] != WALL && map [i][j] != TREE); 
+	}
+	/**
+	 * This method removes the item from the item list.
+	 * @param Point of the item
+	 */
 	public void removeItems(Point p){
 		if (map[p.x][p.y] == SPEEDUP ||
 			map[p.x][p.y] == RANGEUP ||
@@ -448,5 +516,26 @@ public class Map {
 		}
 	}
 	
+	/**
+	 * This method specifies the interaction between any player and unwalkables,
+	 * including bubbles, blocks, walls, that are NOT simply unwalkable.
+	 * @param player
+	 */
+	public void interactWithUnwalkables(Player player){
+		Enumeration<Point> enum_uw = unwalkables.keys();
+		while(enum_uw.hasMoreElements()){
+			Point p = enum_uw.nextElement();
+			Unwalkable unwalkable = unwalkables.get(p);
+			if(player.intersects(unwalkable)){
+				if(!unwalkable.isWalkingAway(player)){
+					player.v_x = 0;
+					player.v_y = 0;  
+				}
+		   }
+		   else{
+			   player.stop(player.hitObj(unwalkable));
+		   }
+		}
+	}
 
 }

@@ -1,6 +1,12 @@
 import java.awt.image.BufferedImage;
 
-
+/**
+ * This method is accredited to Youtuber ForeignGuyMike.
+ * Here is the link to his channel: http://www.youtube.com/user/ForeignGuyMike
+ * 
+ * @author Zheyuan Liu
+ *
+ */
 public class Animation {
 	private BufferedImage[] frames;
 	private int currentFrame;

@@ -2,9 +2,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -34,8 +32,8 @@ public class Player extends GameObj {
 
 	 public static final int WIDTH = 25;
 	 public static final int HEIGHT = 20; //The height of image is, however, 40.
-	 public static final int INIT_X = 40;
-	 public static final int INIT_Y = 40;
+	 //public static final int INIT_X = 40;
+	// public static final int INIT_Y = 40;
 	 public static final int INIT_VEL_X = 0;
 	 public static final int INIT_VEL_Y = 0;
 	 
@@ -47,6 +45,7 @@ public class Player extends GameObj {
 	 private int range = 1;
 	 private int num = 1;
 	 private boolean onBubble = false;
+
 	 
 	 private ArrayList<Bubble> my_bubbles;		
 	 //to keep track of the bubbles dropped
@@ -71,7 +70,9 @@ public class Player extends GameObj {
 	 
 	 public Player(Map map, int code) {
 		
-		super(INIT_VEL_X, INIT_VEL_Y, INIT_X, (INIT_Y + HEIGHT ), 
+		super(INIT_VEL_X, INIT_VEL_Y, 
+				map.getPlayerInitPosition(code).x, 
+				map.getPlayerInitPosition(code).y + HEIGHT, 
 				WIDTH, HEIGHT, Map.COURT_WIDTH, Map.COURT_HEIGHT);
 		
 		try{
@@ -114,8 +115,13 @@ public class Player extends GameObj {
 		direction = Direction.DOWN;
 		is_idle = true;
 	}
-
+	 
+	 
+	 /**
+	  * This method sets the animation for the player
+	  */
 	private void setAniamtion(){
+
 		if (v_x == 0 && v_y ==0){
 			is_idle = true;
 		}
@@ -138,6 +144,8 @@ public class Player extends GameObj {
 			animation.update();
 		}
 	}
+	
+	
    @Override
 	public void draw(Graphics g){
 	   String label = "P" + Integer.toString(code);
@@ -189,41 +197,16 @@ public class Player extends GameObj {
 	 * not go outside its bounds by clipping.
 	 */
 	public void move(){
-		pos_x += v_x;
-		pos_y += v_y;
-		clip();
-		
-		if(!isWalkable(pos_x, pos_y)){
-			pos_x -= v_x;
-			pos_y -= v_y;
-		}
-		setAniamtion();
+		  
+	   map.interactWithUnwalkables(this);
+	   pos_x += v_x;
+	   pos_y += v_y;
+	   clip();
+	  
+	   setAniamtion();
 	}
+
    
-   /**
-    * Determines if a block is walkable
-    * @param pos_x
-    * @param pos_y
-    * @return
-    */
-   public boolean isWalkable(int pos_x, int pos_y){
-	   if (map.isBlocked(pos_x, pos_y, this.code)) {
-			return false;
-	   }
-	   else if (map.isBlocked(pos_x, pos_y + height,this.code)) {
-			return false;
-	   }
-	   else if (map.isBlocked(pos_x + width, pos_y, this.code )) {
-			return false;
-	   }
-	   else if (map.isBlocked(pos_x + width, pos_y + height, this.code)) {
-			return false;
-	   }
-	   else{
-		   return true;
-	   }
-		
-   }
    
    /**
     * This method collects items as the player is moving
@@ -234,7 +217,7 @@ public class Player extends GameObj {
 		   Point p = item_locations.nextElement();
 		   Powerup item = map.items.get(p);
 		   if(item != null){;
-			   if(hitObj(item) != null && item.isVisible()){
+			   if(intersects(item) && item.isVisible()){
 				   //upgrade abilities
 				   upgrade(item);
 				   //add to my_items
@@ -252,7 +235,10 @@ public class Player extends GameObj {
 	   }
    }
    
-   
+   /**
+    * This method upgrade player's stats based on the absorbed item
+    * @param item
+    */
    private void upgrade(Powerup item){
 	   if (item instanceof Powerup_Speed){
 		   if (vel + 1 <= MAX_VEL){
@@ -273,6 +259,8 @@ public class Player extends GameObj {
 		   //TODO for future item additions
 	   }
    }
+   
+   
    /**
     * This method sets the direction of the character
     * @param d
@@ -295,6 +283,8 @@ public class Player extends GameObj {
 			break;
 		}
    }
+  
+   
    public void resetHor(){
 	   v_x = 0;
    }
@@ -322,15 +312,10 @@ public class Player extends GameObj {
 			   int j = (int)(getCenter().x / Map.TILE_SIZE);
 			   if(map.receiveInitBubbles(i, j, this.code, this.range)){
 				   onBubble = true;
-				   last_bubble = new Bubble (Map.COURT_WIDTH, Map.COURT_HEIGHT, 
-								map.grid[i][j].x, map.grid[i][j].y, this.range);
+				   last_bubble = new Bubble (map.grid[i][j].x, map.grid[i][j].y, this.range);
 		   		}
 		   }
-		   /*
-		   else{
-			   last_bubble = null;
-		   }
-		   */
+
 	   }
    }
 
@@ -360,7 +345,8 @@ public class Player extends GameObj {
 				}
 			}
 			else{
-				if(last_bubble.getDuration() <= (int)500*0.9){
+				
+				if(last_bubble.getDuration() <= (int)300*0.9){
 					//allow time to traverse the bubble when first drop it
 					stop(relativePos(last_bubble));
 				}
@@ -428,11 +414,9 @@ public class Player extends GameObj {
 			}
 			else{
 				if (last_bubble.getDuration() <= 0 || map.isExploded(last_bubble)){
-					last_bubble = new Explosion
-							(Map.COURT_WIDTH, Map.COURT_HEIGHT, 
-									last_bubble.getCenter().x, 
-									last_bubble.getCenter().y, 
-									this.range, this.map);
+					last_bubble = new Explosion (last_bubble.getCenter().x, 
+												 last_bubble.getCenter().y, 
+									             this.range, this.map);
 					map.startExplosion(last_bubble.getIndex().x, 
 							last_bubble.getIndex().y, this.range);
 				}

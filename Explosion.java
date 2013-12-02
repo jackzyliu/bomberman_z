@@ -16,11 +16,9 @@ public class Explosion extends Bubble {
 	private BufferedImage[] imgs;
 	private Animation animation;
 	
-	public Explosion
-		(int courtWidth, int courtHeight, int center_x, int center_y, 
-														int range, Map map){
+	public Explosion (int center_x, int center_y, int range, Map map){
 		
-		super(courtWidth, courtHeight, center_x, center_y, range);
+		super(center_x, center_y, range);
 		try{
 			imgs = new BufferedImage[5];
 			for(int i = 0; i < imgs.length; i ++){
@@ -48,7 +46,17 @@ public class Explosion extends Bubble {
 		int j = (int)img_x / Map.TILE_SIZE;
 		
 		for (int h = i ; h >= map.clip(i - range, 'h') ; h--){
+			if(!map.isExplodable(h, j)){
+				// explosions do not TOUCH WALL;
+				break;
+			}
+			
 			char tile = map.map[h][j];
+			
+			if(!map.isExplodable(h, j)){
+				// explosions do not TOUCH WALL;
+				break;
+			}
 			
 			int img_y_tmp = img_y - ((i - h) * Map.TILE_SIZE);
 			g.drawImage(animation.getImage(), 
@@ -60,6 +68,12 @@ public class Explosion extends Bubble {
 			}
 		}
 		for (int h = i ; h <= map.clip(i + range, 'h') ; h++){
+			
+			if(!map.isExplodable(h, j)){
+				// explosions do not TOUCH WALL;
+				break;
+			}
+			
 			char tile = map.map[h][j];
 			
 			int img_y_tmp = img_y - ((i - h) * Map.TILE_SIZE);
@@ -73,6 +87,11 @@ public class Explosion extends Bubble {
 		}
 		
 		for (int w = j ; w >= map.clip(j - range, 'w') ; w--){
+			if(!map.isExplodable(i, w)){
+				// explosions do not TOUCH WALL;
+				break;
+			}
+			
 			char tile = map.map[i][w];
 			
 			int img_x_tmp = img_x - ((j - w) * Map.TILE_SIZE);
@@ -86,6 +105,11 @@ public class Explosion extends Bubble {
 		}
 		
 		for (int w = j ; w <= map.clip(j + range, 'w') ; w++){
+			if(!map.isExplodable(i, w)){
+				// explosions do not TOUCH WALL;
+				break;
+			}
+			
 			char tile = map.map[i][w];
 			
 			int img_x_tmp = img_x - ((j - w) * Map.TILE_SIZE);

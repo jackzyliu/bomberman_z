@@ -21,9 +21,9 @@ public class Bubble extends GameObj {
 	
 	private static BufferedImage img;
 	 
-	public Bubble(int courtWidth, int courtHeight, int center_x, int center_y, int range) {
+	public Bubble(int center_x, int center_y, int range) {
 		super(0, 0, center_x - OBJ_WIDTH/2, center_y - OBJ_HEIGHT/2, 
-				OBJ_WIDTH, OBJ_HEIGHT, courtWidth, courtHeight);
+				OBJ_WIDTH, OBJ_HEIGHT, Map.COURT_WIDTH, Map.COURT_HEIGHT);
 	try {
 		if (img == null) {
 			img = ImageIO.read(new File(img_file));
