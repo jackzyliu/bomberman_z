@@ -20,7 +20,8 @@ public class GameMapOpt extends JPanel{
 	//file paths
 	public static final String map_files = "map_files.txt";
 	public static final String background_img = "Menu/map_select.png";
-	public static final String logo_img = "GAWESOME.jpg";
+	public static final String logo_img = "Misc/GAWESOME.jpg";
+	public static final String title_img = "Menu/map_select_title.png";
 	//Button images
 	public static final String l_img = "Buttons/LEFT_ARROW.png";
 	public static final String r_img = "Buttons/RIGHT_ARROW.png";
@@ -31,6 +32,7 @@ public class GameMapOpt extends JPanel{
 	public static final String s_h_img = "Buttons/START_HOVER.png";
 	public static final String q_h_img = "Buttons/QUIT_HOVER.png";
 	
+	private static final int SPACE = 20;
 	
 	//panel constants
 	public static final int MAPOPT_WIDTH = GameMenu.MENU_WIDTH;
@@ -43,9 +45,15 @@ public class GameMapOpt extends JPanel{
 	public static final int MAP_SAMPLE_X = (MAPOPT_WIDTH - MAP_SAMPLE_WIDTH) / 2;
 	public static final int MAP_SAMPLE_Y = (MAPOPT_HEIGHT - MAP_SAMPLE_HEIGHT) / 2;
 	
-	//button constants
-	private static final int SPACE = 20;
+	//title display constants
+	public static final int TITLE_WIDTH = MAP_SAMPLE_WIDTH;
+	public static final int TITLE_HEIGHT = 40;
 	
+	public static final int TITLE_X = MAP_SAMPLE_X;
+	public static final int TITILE_Y = SPACE;
+	
+	//button constants
+
 	public static final int ARROW_BUTTON_WIDTH = 40;
 	public static final int ARROW_BUTTON_HEIGHT = 40;
 	
@@ -70,6 +78,7 @@ public class GameMapOpt extends JPanel{
 	private BufferedReader br;
 	private BufferedImage logo;
 	private BufferedImage bg_img;
+	private BufferedImage title;
 	private BufferedImage l;
 	private BufferedImage r;
 	private BufferedImage l_h;
@@ -132,6 +141,9 @@ public class GameMapOpt extends JPanel{
 			}
 			if(logo == null){
 				logo = ImageIO.read(new File(logo_img));
+			}
+			if(title == null){
+				title = ImageIO.read(new File(title_img));
 			}
 		} catch(IOException e){
 			System.out.println("Internal Error: " + e.getMessage());
@@ -243,6 +255,12 @@ public class GameMapOpt extends JPanel{
 		super.paintComponent(g);
 		
 			g.drawImage(bg_img, 0, 0, MAPOPT_WIDTH, MAPOPT_HEIGHT, null);
+			g.drawImage(title, 
+						TITLE_X, 
+						TITILE_Y,
+						TITLE_WIDTH,
+						TITLE_HEIGHT,
+						null);
 			g.drawImage(maps_preview.get(iterator), 
 						MAP_SAMPLE_X,
 						MAP_SAMPLE_Y,

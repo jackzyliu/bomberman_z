@@ -1,2 +1,0 @@
-Map/test.txt, Map_mini/test_mini.png
-Map/test2.txt, Map_mini/Question_mark.png

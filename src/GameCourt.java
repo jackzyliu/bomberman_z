@@ -5,6 +5,7 @@
  */
 
 import java.awt.*;
+
 import javax.swing.*;
 
 
@@ -29,10 +30,19 @@ import javax.swing.*;
 @SuppressWarnings("serial")
 public class GameCourt extends JPanel {
 
+	
 	// Update interval for timer in milliseconds 
 	public static final int INTERVAL = 10; 
 
-	
+	public enum GameResult{
+		PLAYER1,
+		PLAYER2,
+		CLEAR,
+		LOSE,
+		DRAW,
+		NONE;
+	}
+
 
 	/** (Re-)set the state of the game to its initial state.
 	 * To be Overridden
@@ -50,7 +60,6 @@ public class GameCourt extends JPanel {
 		
 	}
 
-	
 	@Override
 	public Dimension getPreferredSize(){
 		return new Dimension(Map.COURT_WIDTH, Map.COURT_HEIGHT);

@@ -8,22 +8,20 @@ import java.util.HashSet;
 
 import javax.swing.Timer;
 
-
-public class GameCourt_OnePlayer extends GameCourt{
-
 @SuppressWarnings("serial")
+public class GameCourt_OnePlayer extends GameCourt{
 
 	private boolean playing;
 
-	private GameTimer game_timer;
+	private GameDashboard game_dashboard;
 	private Player player1;         
-	private Player player2;
+
 	private HashSet<Integer> keypressed = new HashSet<Integer>();
 	//to keep track the keys pressed
 	private Map map;
 	
 	public GameCourt_OnePlayer
-		(GameTimer game_timer, String map_file) throws IOException{
+		(GameDashboard game_dashboard, String map_file) throws IOException{
 		//super(status, game_timer);
 		Timer timer = new Timer(INTERVAL, new ActionListener(){
 			public void actionPerformed(ActionEvent e){
@@ -43,7 +41,7 @@ public class GameCourt_OnePlayer extends GameCourt{
 			private void keyActions_player1(){
 				//if space is pressed && the character walked out of the 
 				//previous bubble.
-				if(keypressed.contains(KeyEvent.VK_ENTER) ){
+				if(keypressed.contains(KeyEvent.VK_SPACE) ){
 					
 					player1.dropBubble();
 				}
@@ -82,77 +80,22 @@ public class GameCourt_OnePlayer extends GameCourt{
 				player1.collectItems();
 				player1.interactWithLastBubble();
 				map.interactWithUnwalkables(player1);
-
-				
 			}
-			/**Helper:
-			 * perform a series of actions related to a combination of keys
-			 *  pressed
-			 */
-			private void keyActions_player2(){
-
-				
-				
-				//if space is pressed && the character walked out of the 
-				//previous bubble.
-				if(keypressed.contains(KeyEvent.VK_Z) ){
-					
-					player2.dropBubble();
-				}
-				//if only ONE of the left and right arrow keys are pressed 
-				if(keypressed.contains(KeyEvent.VK_A) 
-						&& keypressed.contains(KeyEvent.VK_D)){
-					player2.resetHor();
-				}
-				else {
-					if (keypressed.contains(KeyEvent.VK_A)){
-						player2.setDir(Direction.LEFT);
-					}
-					else if (keypressed.contains(KeyEvent.VK_D)){
-						player2.setDir(Direction.RIGHT);
-					}
-					else{
-						player2.resetHor();
-					}
-				}
-				//if only ONE of the up and down arrow keys are pressed 
-				if(keypressed.contains(KeyEvent.VK_W)
-						&& keypressed.contains(KeyEvent.VK_S)){
-					player2.resetVer();
-				}	
-				else{
-					if (keypressed.contains(KeyEvent.VK_W)){
-						player2.setDir(Direction.UP);
-					}
-					else if (keypressed.contains(KeyEvent.VK_S)){
-						player2.setDir(Direction.DOWN);
-					}
-					else{
-						player2.resetVer();
-					}
-				}
-				player2.collectItems();
-				player2.interactWithLastBubble();
-				map.interactWithUnwalkables(player2);
-			}
-			
-			
+		
 			
 			public void keyPressed(KeyEvent e){
 				keypressed.add(e.getKeyCode());
 				keyActions_player1();
-				keyActions_player2();
 			}
 			public void keyReleased(KeyEvent e){
 				if (!keypressed.isEmpty()){
 					keypressed.remove(e.getKeyCode());
 				}
 				keyActions_player1();
-				keyActions_player2();
 			}
 		});
 		
-		this.game_timer = game_timer;
+		this.game_dashboard = game_dashboard;
 		this.map = new Map(map_file);
 	}
 	/** (Re-)set the state of the game to its initial state.
@@ -160,7 +103,6 @@ public class GameCourt_OnePlayer extends GameCourt{
 	public void reset() {
 
 		player1 = new Player(map, 1);
-		player2 = new Player(map, 2);
 		playing = true;
 		// Make sure that this component has the keyboard focus
 		requestFocusInWindow();
@@ -176,20 +118,17 @@ public class GameCourt_OnePlayer extends GameCourt{
 			player1.interactWithLastBubble();
 			player1.move();
 			player1.trackBubbles();
-			player2.interactWithLastBubble();
-			player2.move();
-			player2.trackBubbles();
-			
+			player1.stateControll();
 			map.trackExplosions();
 			map.interactWithUnwalkables(player1);
-			map.interactWithUnwalkables(player2);
+
 			
-			playing = (!player1.isExploded() &&!player2.isExploded() && !game_timer.isOver());
+			
 			repaint();
 		} 
 		else{
 
-			game_timer.stopCounting();
+			game_dashboard.stopCounting();
 		}
 	}
 
@@ -199,18 +138,11 @@ public class GameCourt_OnePlayer extends GameCourt{
 		map.paint(g);
 		map.drawAreaExplosionAndItems(g);
 		player1.paintBubbles(g);
-		player2.paintBubbles(g);
+
 		//draw the person in the front first
 		//TODO make this a separate method while developing multi-layer mode
-		
-		if(player1.pos_y >= player2.pos_y){
-			player1.draw(g);
-			player2.draw(g);
-		}
-		else{
-			player2.draw(g);
-			player1.draw(g);		
-		}
+		player1.draw(g);
+
 		
 	}
 }

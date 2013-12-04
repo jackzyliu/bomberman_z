@@ -9,6 +9,8 @@ import java.util.Iterator;
 
 import javax.imageio.ImageIO;
 
+
+
 /**
  * This class defines the character that the user controls.
  * 
@@ -29,11 +31,13 @@ import javax.imageio.ImageIO;
  *
  */
 public class Player extends GameObj {
-
+	
+	 public static final String dead_img = "Character/dead_player.gif";
+	/**
+	 * Constants Section
+	 */
 	 public static final int WIDTH = 25;
 	 public static final int HEIGHT = 20; //The height of image is, however, 40.
-	 //public static final int INIT_X = 40;
-	// public static final int INIT_Y = 40;
 	 public static final int INIT_VEL_X = 0;
 	 public static final int INIT_VEL_Y = 0;
 	 
@@ -41,12 +45,22 @@ public class Player extends GameObj {
 	 public static final int MAX_RANGE = 8;
 	 public static final int MAX_NUM = 6;
 	 
+	 public static final int DEATH_PEN = 500;     //5 sec of death penalty
+	 public static final int RESPAWN = 300;		  //3 sec of respawn 
+	 //TODO better timing options : System.currentMillisTime()
+	 
+	 /**
+	  * Player Stats
+	  */
 	 private int vel = 1;
 	 private int range = 1;
 	 private int num = 1;
 	 private boolean onBubble = false;
+	 private int death_times = 0;
 
-	 
+	 /**
+	  * Utility Section
+	  */
 	 private ArrayList<Bubble> my_bubbles;		
 	 //to keep track of the bubbles dropped
 	 //use arraylist because index-specific concurrent modification is required
@@ -54,26 +68,52 @@ public class Player extends GameObj {
 	 private Bubble last_bubble;			// the last bubble dropped;
 	 private Hashtable<Powerup, Integer> my_items;
 	 //to keep track of the items;
-	 private Enumeration<Point> item_locations;
+
 
 	 private Map map;
 	 private int code;				//the player's code, e.g player "1", player
 	 								//"2"
+	 /**
+	  * State Control Section
+	  */
+	 private enum PlayerState{
+		 DEAD,
+		 RESPAWN,
+		 NORMAL,
+		 VICTORY;
+	 }
+	 
+	 private PlayerState state;
+	 
+	 private int respawn_invulnerable = RESPAWN;  //2 seconds of invulnerability
+	 private int death_time = DEATH_PEN;           //5 seconds of death-penalty
+	 
+	 /**
+	  * Animation Section
+	  */
 	 private Animation animation;
 	 private Direction direction;
 	 private boolean is_idle;
+	 private boolean display;
+	 private boolean dead_display;
 	 private BufferedImage[] front;
 	 private BufferedImage[] back;
 	 private BufferedImage[] right;
+	 private BufferedImage dead;
 
 	 
-	 
+	 /**
+	  * Constructor
+	  * @param map
+	  * @param code
+	  */
 	 public Player(Map map, int code) {
 		
 		super(INIT_VEL_X, INIT_VEL_Y, 
 				map.getPlayerInitPosition(code).x, 
 				map.getPlayerInitPosition(code).y + HEIGHT, 
-				WIDTH, HEIGHT, Map.COURT_WIDTH, Map.COURT_HEIGHT);
+				WIDTH, HEIGHT, 
+				Map.COURT_WIDTH, Map.COURT_HEIGHT);
 		
 		try{
 			String img_file;
@@ -99,6 +139,7 @@ public class Player extends GameObj {
 				right[i] = ImageIO.read(new File(img_file));
 			}
 			
+			dead = ImageIO.read(new File(dead_img));
 		} catch (IOException e) {
 			System.out.println("Internal Error:" + e.getMessage());
 		}
@@ -108,12 +149,13 @@ public class Player extends GameObj {
 		this.code = code;
 		//this.explosions = new ArrayDeque<Explosion>();
 		this.my_items = new Hashtable<Powerup, Integer>();
-		this.item_locations = map.items.keys();
-		
-		
 		animation = new Animation();
 		direction = Direction.DOWN;
 		is_idle = true;
+		state = PlayerState.RESPAWN;
+		display = true;
+		dead_display = false;
+		
 	}
 	 
 	 
@@ -149,37 +191,73 @@ public class Player extends GameObj {
    @Override
 	public void draw(Graphics g){
 	   String label = "P" + Integer.toString(code);
-
-	   //if idle
-	   if (is_idle){
-		   BufferedImage img;
-		   switch(direction){
-			case UP: img = back[0]; break;
-			case DOWN: img = front[0]; break;
-			case RIGHT: case LEFT: img = right[0]; break;
-			default: img = front[0]; break;
-		   }
-		   if(direction == Direction.LEFT){
-			   //flip the image
+	   g.setFont(new Font("default", Font.BOLD, 16));
+	   
+	   if(state == PlayerState.DEAD){
+		   if(dead_display){
 			   g.drawString(label, pos_x, (pos_y - height));
-			   
-			   g.drawImage(img, pos_x + width, (pos_y - height), -width, (height * 2), null);  
+			   g.drawImage(dead, 
+					   	   pos_x, 
+					   	   (pos_y - height), 
+					   	   width, 
+					   	   (height * 2), 
+					   	   null); 
 		   }
-		   else{
-			   g.drawString(label, pos_x, (pos_y - height));
-			   g.drawImage(img, pos_x, (pos_y - height), width, (height * 2), null);
-		   }
-		}
+	   }
+		   //do not draw
 	   else{
-		   if(direction == Direction.LEFT){
-			   g.drawString(label, pos_x, (pos_y - height));
-			   g.drawImage(animation.getImage(), pos_x + width, (pos_y - height), 
-					   -width, (height * 2), null); 
-		   }
-		   else{
-			   g.drawString(label, pos_x, (pos_y - height));
-			   g.drawImage(animation.getImage(), pos_x, (pos_y - height), 
-					   width, (height * 2), null); 
+		   if(display) {
+			   //if idle
+			   if (is_idle){
+				   BufferedImage img;
+				   switch(direction){
+				   case UP: img = back[0]; break;
+				   case DOWN: img = front[0]; break;
+				   case RIGHT: case LEFT: img = right[0]; break;
+				   default: img = front[0]; break;
+				   }
+				   if(direction == Direction.LEFT){
+					   //flip the image
+					   
+					   g.drawString(label, pos_x, (pos_y - height));
+
+					   g.drawImage(img, 
+							   	   pos_x + width, 
+							   	   (pos_y - height), 
+							   	   -width, 
+							   	   (height * 2), 
+							   	   null);  
+				   }
+				   else{
+					   g.drawString(label, pos_x, (pos_y - height));
+					   g.drawImage(img, 
+						   	   	   pos_x, 
+						   	       (pos_y - height), 
+						   	       width, 
+						   	       (height * 2), 
+						   	       null);
+				   }
+			   }	
+			   else{
+				   if(direction == Direction.LEFT){
+					   g.drawString(label, pos_x, (pos_y - height));
+					   g.drawImage(animation.getImage(), 
+						   	       pos_x + width, 
+						   	       (pos_y - height), 
+						   	       -width, 
+						   	       (height * 2), 
+						   	       null); 
+				   }
+				   else{
+					   g.drawString(label, pos_x, (pos_y - height));
+					   g.drawImage(animation.getImage(), 
+							   	   pos_x, 
+							   	   (pos_y - height), 
+							   	   width, 
+							   	   (height * 2), 
+							   	   null); 
+				   }
+			   }
 		   }
 	   }
 	}
@@ -197,13 +275,15 @@ public class Player extends GameObj {
 	 * not go outside its bounds by clipping.
 	 */
 	public void move(){
-		  
-	   map.interactWithUnwalkables(this);
-	   pos_x += v_x;
-	   pos_y += v_y;
-	   clip();
+	   if(state != PlayerState.DEAD){
+		   
+		   map.interactWithUnwalkables(this);
+		   pos_x += v_x;
+		   pos_y += v_y;
+		   clip();
 	  
-	   setAniamtion();
+		   setAniamtion();
+	   }
 	}
 
    
@@ -212,25 +292,27 @@ public class Player extends GameObj {
     * This method collects items as the player is moving
     */
    public void collectItems(){
-	   item_locations = map.items.keys(); //reset the enumeration
-	   while(item_locations.hasMoreElements()){
-		   Point p = item_locations.nextElement();
-		   Powerup item = map.items.get(p);
-		   if(item != null){;
-			   if(intersects(item) && item.isVisible()){
-				   //upgrade abilities
-				   upgrade(item);
-				   //add to my_items
-				   if(my_items.containsKey(item)){
-					   my_items.put(item, my_items.get(item) + 1);
-				   }
-				   else{
-					   my_items.put(item, 1);
-				   }
+	   Point player_index = map.toIndex(getCenter().x, getCenter().y);
+	   for(int i = player_index.x - 1; i <= player_index.x + 1; i++ ){
+		   for(int j = player_index.y - 1; j <= player_index.y + 1; j++ ){	  
+			   Powerup item = map.items.get(new Point(i,j));
+			   if(item != null){
+				   if(intersects(item) && item.isVisible()){
+					   //upgrade abilities
+					   upgrade(item);
+					   //add to my_items
+					   if(my_items.containsKey(item)){
+						   my_items.put(item, my_items.get(item) + 1);
+					   }
+					   else{
+						   my_items.put(item, 1);
+					   }
 
-				   //ask the map to remove the item
-				   map.removeItems(p);
+					   //ask the map to remove the item
+					   map.removeItems(new Point(i,j));
+				   }	
 			   }
+				
 		   }
 	   }
    }
@@ -300,19 +382,18 @@ public class Player extends GameObj {
     * Drop the bomb on the grid using the position of the center of the 
     * character's lower half body
     * 
-    * @param COURT_HEIGHT
-    * @param COURT_WIDTH
-    * @param grid
-    * @return
+
     */
    public void dropBubble (){
-	   if(!onBubble){
+	   if(state != PlayerState.DEAD && !onBubble){
 		   if (my_bubbles.size() < num){
 			   int i = (int)(getCenter().y / Map.TILE_SIZE);
 			   int j = (int)(getCenter().x / Map.TILE_SIZE);
 			   if(map.receiveInitBubbles(i, j, this.code, this.range)){
 				   onBubble = true;
-				   last_bubble = new Bubble (map.grid[i][j].x, map.grid[i][j].y, this.range);
+				   last_bubble = new Bubble (map.grid[i][j].x, 
+						   					 map.grid[i][j].y, 
+						   					 this.range);
 		   		}
 		   }
 
@@ -346,7 +427,7 @@ public class Player extends GameObj {
 			}
 			else{
 				
-				if(last_bubble.getDuration() <= (int)300*0.9){
+				if(last_bubble.getDuration() <= (int)200*0.9){
 					//allow time to traverse the bubble when first drop it
 					stop(relativePos(last_bubble));
 				}
@@ -396,7 +477,9 @@ public class Player extends GameObj {
 				Bubble b = my_bubbles.get(index);
 				b.countdown();
 				if(b.getDuration() <= 0 || map.isExploded(b)){
-					map.startExplosion(b.getIndex().x, b.getIndex().y, b.getRange());
+					map.startExplosion(b.getIndex().x,
+									   b.getIndex().y, 
+									   b.getRange());
 					my_bubbles.remove(index);
 				}
 			}
@@ -413,7 +496,9 @@ public class Player extends GameObj {
 				}
 			}
 			else{
-				if (last_bubble.getDuration() <= 0 || map.isExploded(last_bubble)){
+				if (last_bubble.getDuration() <= 0 || 
+					map.isExploded(last_bubble)){
+					
 					last_bubble = new Explosion (last_bubble.getCenter().x, 
 												 last_bubble.getCenter().y, 
 									             this.range, this.map);
@@ -444,31 +529,68 @@ public class Player extends GameObj {
 	}
 	
 	/**
-	 * @return if the player is in explosion
+	 * @return if the player has touched explosion
 	 */
-	public boolean isExploded(){
-		int i = (int) pos_y/Map.TILE_SIZE ;
-		//System.out.println(i);
-		if (i < 0){
-			i = 0;
-		}
-		if (i > 9){
-			i = 9;
-		}
-		
-		int j = (int) pos_x/Map.TILE_SIZE ;
-		
-		if (j < 0){
-			j = 0;
-		}
-		if (j > 9){
-			j = 9;
-		}
-		
-		return map.map[i][j] == 'e';
+	private boolean isExploded(){
+		Point p = map.toIndex(getCenter().x, getCenter().y);
+		return map.map[p.x][p.y] == Map.EXPLOSION;
 	}
 	
-
+	/**
+	 * this method controls the player's state
+	 */
+	public void stateControll(){
+		if(state == PlayerState.DEAD){
+			death_time --;  //count down death time
+			if(death_time > DEATH_PEN - 100){
+				dead_display  = true;		//display image
+			}
+			else {
+				dead_display = false;
+			}
+			
+			if(death_time <= 0){
+				state = PlayerState.RESPAWN;	//respawn
+				death_time = DEATH_PEN;         //reset death time
+				pos_x = map.getPlayerInitPosition(code).x;	//reset location
+				pos_y = map.getPlayerInitPosition(code).y;
+				direction = Direction.DOWN;				//reset direction
+			}
+		}
+		else if (state == PlayerState.RESPAWN){
+			
+			respawn_invulnerable --;			//countdown
+			if(respawn_invulnerable % 10 == 0){
+				display = !display;				//blink image every 100 milisec
+			}
+			if(respawn_invulnerable <= 0){
+				state = PlayerState.NORMAL;			//normal
+				respawn_invulnerable = RESPAWN;     //reset respawn countdown
+			}
+		}
+		else{  // normal state
+			if(isExploded()){
+				state = PlayerState.DEAD;
+				death_times ++;   //count of number death times
+				
+				//give out all the items
+				Enumeration<Powerup> items = my_items.keys();
+				while(items.hasMoreElements()){
+					Powerup item = items.nextElement();
+					int num = my_items.get(item);
+					for (int x = num; x >= 0 ; x --){
+						map.items.put
+							(map.toIndex(item.getCenter().x, item.getCenter().y), 
+							item);
+					}
+				}
+			}
+		}
+	}
+	
+	public int getDeathTimes(){
+		return death_times;
+	}
 }
    
    

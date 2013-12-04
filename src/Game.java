@@ -30,12 +30,10 @@ public class Game implements Runnable {
 		else{
 			switch(state){
 			case TWOP:
-				final JLabel timer_label_2 = new JLabel("1000");
-				final GameTimer timer_2 = new GameTimer(1000, timer_label_2);
-				timer_2.add(timer_label_2);
-				frame.add(timer_2, BorderLayout.EAST);
+				final GameDashboard dashboard_2 = new GameDashboard(GameState.TWOP);
+				frame.add(dashboard_2, BorderLayout.EAST);
 				// Main playing area
-				final GameCourt court_2p = new GameCourt_TwoPlayer(timer_2, map_file);
+				final GameCourt court_2p = new GameCourt_TwoPlayer(dashboard_2, map_file);
 				frame.add(court_2p, BorderLayout.CENTER);
 				court_2p.reset();
 				break;
@@ -44,16 +42,13 @@ public class Game implements Runnable {
 				frame.add(game_menu);
 				break;
 			case ONEP:
-				final JLabel timer_label_1 = new JLabel("1000");
-				final GameTimer timer_1 = new GameTimer(1000, timer_label_1);
-				timer_1.add(timer_label_1);
-				frame.add(timer_1, BorderLayout.EAST);
+				final GameDashboard dashboard_1 = new GameDashboard(GameState.ONEP);
+				frame.add(dashboard_1, BorderLayout.EAST);
 				// Main playing area
-				final GameCourt court_1p = new GameCourt_TwoPlayer(timer_1, map_file);
+				final GameCourt court_1p = new GameCourt_OnePlayer(dashboard_1, map_file);
 				frame.add(court_1p, BorderLayout.CENTER);
 				court_1p.reset();
 				break;
-				
 			case HELP:
 				//TODO CONTROL HELP
 				break;

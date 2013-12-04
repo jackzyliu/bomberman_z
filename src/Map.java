@@ -61,7 +61,7 @@ public class Map {
 	private static BufferedImage block_img;
 	private static BufferedImage ground_img;
 
-	private Deque<Explosion> explosions;	
+	public Deque<Explosion> explosions;	
 	private Iterator<Explosion> itr_e;    
 	 // the iterator to iterator over explosions
 	private Hashtable<Point, Unwalkable> unwalkables;    
@@ -72,6 +72,7 @@ public class Map {
 	//Note: the POINTS are indices in arrays
 	
 	
+	@SuppressWarnings("unused")
 	private String map_file;
 	private BufferedReader br;
 	
@@ -193,7 +194,7 @@ public class Map {
 		if(map[i][j] == BLOCK){
 			
 			int min = 0;
-			int max = 9;
+			int max = 5;
 			int item_code = 
 					min + (int)(Math.random() * ((max - min) + 1));
 			//a random number from 0 - 9
@@ -385,7 +386,10 @@ public class Map {
 		unwalkables.remove(new Point (i,j));
 		
 		for (int h = i ; h >= clip(i - range, 'h') ; h--){
-			if(isExplodable(h, j)){
+			if(!isExplodable(h, j)){
+				break;
+			}
+			else{
 				char tile = map[h][j];
 				if(tile == BLOCK){   // explosions do not go through blocks
 					map[h][j] = BLOCK_BREAK;
@@ -399,7 +403,10 @@ public class Map {
 		}
 		
 		for (int h = i ; h <= clip(i + range, 'h') ; h++){
-			if(isExplodable(h,j)){
+			if(!isExplodable(h, j)){
+				break;
+			}
+			else{
 				char tile = map[h][j];
 				if(tile == BLOCK){ // explosions do not go through blocks
 					map[h][j] = BLOCK_BREAK;
@@ -412,7 +419,10 @@ public class Map {
 		}
 		
 		for (int w = j ; w >= clip(j - range, 'w') ; w--){
-			if(isExplodable(i,w)){
+			if(!isExplodable(i, w)){
+				break;
+			}
+			else{
 				char tile = map[i][w];
 				if(tile == BLOCK){   // explosions do not go through blocks
 					map[i][w] = BLOCK_BREAK;
@@ -425,7 +435,10 @@ public class Map {
 		}
 		
 		for (int w = j ; w <= clip(j + range, 'w') ; w++){
-			if(isExplodable(i,w)){
+			if(!isExplodable(i, w)){
+				break;
+			}
+			else{
 				char tile = map[i][w];
 				if(tile == BLOCK){   // explosions do not go through blocks
 					map[i][w] = BLOCK_BREAK;
@@ -553,13 +566,9 @@ public class Map {
 	 * @param Point of the item
 	 */
 	public void removeItems(Point p){
-		if (map[p.x][p.y] == SPEEDUP ||
-			map[p.x][p.y] == RANGEUP ||
-			map[p.x][p.y] == NUMUP){
-			
 			items.remove(p);
 			map[p.x][p.y] = GROUND;
-		}
+		
 	}
 	
 	/**

@@ -23,7 +23,7 @@ public class GameMenu extends JPanel {
 	public static final String one_player_hover = "Menu/One_Player_Hover.png";
 	public static final String two_player_hover = "Menu/Two_Players_Hover.png";
 	
-	public static final int MENU_WIDTH = Map.COURT_WIDTH + GameTimer.WIDTH;
+	public static final int MENU_WIDTH = Map.COURT_WIDTH + GameDashboard.WIDTH;
 	public static final int MENU_HEIGHT = Map.COURT_HEIGHT;
 	
 	public static final int BUTTON_WIDTH = 200;

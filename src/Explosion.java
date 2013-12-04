@@ -53,11 +53,6 @@ public class Explosion extends Bubble {
 			
 			char tile = map.map[h][j];
 			
-			if(!map.isExplodable(h, j)){
-				// explosions do not TOUCH WALL;
-				break;
-			}
-			
 			int img_y_tmp = img_y - ((i - h) * Map.TILE_SIZE);
 			g.drawImage(animation.getImage(), 
 					img_x, img_y_tmp, IMG_WIDTH, IMG_HEIGHT, null);
