@@ -44,6 +44,7 @@ public class GameDashboard extends JPanel{
 	public static final String frame_img = "Menu/timer_frame.png";
 	public static final String scoreboard1_img = "Menu/player1_score_board.png";
 	public static final String scoreboard2_img = "Menu/player2_score_board.png";
+	public static final String creepboard_img = "Menu/creep_scoreboard.png";
 	public static final String decoration_img = "Misc/bomberman_decoration.png";
 	public static final String quit_img = "Buttons/QUIT.png";
 	public static final String quit_hover_img = "Buttons/QUIT_HOVER.png";
@@ -61,6 +62,7 @@ public class GameDashboard extends JPanel{
 	private GameState mode;
 	private int player1_score;
 	private int player2_score;
+	private int creep_num;
 	
 	public boolean visible;
 	private int time_length;   //in seconds
@@ -82,7 +84,7 @@ public class GameDashboard extends JPanel{
 		
 		setBackground(Color.CYAN);	
 		this.mode = mode;
-		this.time_length = 60*3;   //3 minutes
+		this.time_length = 3*60;   //3 minutes
 		this.quit_pressed = false;
 		this.player1_score = 0;
 		this.player2_score = 0;
@@ -92,7 +94,12 @@ public class GameDashboard extends JPanel{
 			bg = ImageIO.read(new File(bg_img));
 			frame = ImageIO.read(new File(frame_img));
 			scoreboard1 = ImageIO.read(new File(scoreboard1_img));
-			scoreboard2 = ImageIO.read(new File(scoreboard2_img));
+			if(mode == GameState.ONEP){
+				scoreboard2 = ImageIO.read(new File(creepboard_img));
+			}
+			else{
+				scoreboard2 = ImageIO.read(new File(scoreboard2_img));
+			}
 			decoration = ImageIO.read(new File(decoration_img));
 			quit = ImageIO.read(new File(quit_img));
 			quit_hover = ImageIO.read(new File(quit_hover_img));
@@ -129,6 +136,7 @@ public class GameDashboard extends JPanel{
 		addMouseListener(new MouseAdapter(){
 			
 			public void mousePressed(MouseEvent e){
+				
 				int m_x = e.getX();
 				int m_y = e.getY();
 				
@@ -177,8 +185,15 @@ public class GameDashboard extends JPanel{
 		//DISPLAY SCORE BOARD
 		g.drawImage(scoreboard1, 0, SCOREBOARD1_Y, WIDTH, SCOREBOARD_HEIGHT, null);
 		g.drawImage(scoreboard2, 0, SCOREBOARD2_Y, WIDTH, SCOREBOARD_HEIGHT, null);
+		
 		g.drawString(Integer.toString(player1_score), WIDTH*3 /4, SCOREBOARD1_Y + SCOREBOARD_HEIGHT * 3 / 4);
-		g.drawString(Integer.toString(player2_score), WIDTH*3 /4, SCOREBOARD2_Y + SCOREBOARD_HEIGHT * 3 / 4);
+		if(mode == GameState.ONEP){
+			g.drawString(Integer.toString(creep_num), WIDTH*3 /4, SCOREBOARD2_Y + SCOREBOARD_HEIGHT * 3 / 4);
+		}
+		else{
+			g.drawString(Integer.toString(player2_score), WIDTH*3 /4, SCOREBOARD2_Y + SCOREBOARD_HEIGHT * 3 / 4);
+		}
+		
 		
 		//DISPLAY DECORATION
 		g.drawImage(decoration, 0, DECORATION_Y, WIDTH, DECORATION_HEIGHT, null);
@@ -197,7 +212,7 @@ public class GameDashboard extends JPanel{
 	}
 	
 	public boolean isOver(){
-		if(time_length == 0){
+		if(time_length <= 0){
 			this.timer.stop();
 			return true;
 		}
@@ -234,9 +249,16 @@ public class GameDashboard extends JPanel{
 		if(player_code == 1) this.player2_score = death_times;
 		else this.player1_score = death_times;
 	}
+	
+	
 	public int getPlayerScore(int player_code){
 		if(player_code == 1) return this.player1_score;
 		else if(player_code == 2) return this.player2_score;
 		else return 0;
 	}
+	
+	public void setCreepNum(int num){
+		creep_num = num;
+	}
+	
 }

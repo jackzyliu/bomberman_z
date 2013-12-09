@@ -1,11 +1,12 @@
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -18,10 +19,13 @@ import javax.swing.JPanel;
 public class GameMenu extends JPanel {
 	
 	public static final String img_file = "Menu/bomberman.jpg";
-	public static final String one_player_normal = "Menu/One_Player_Normal.png";
-	public static final String two_player_normal = "Menu/Two_Players_Normal.png";
-	public static final String one_player_hover = "Menu/One_Player_Hover.png";
-	public static final String two_player_hover = "Menu/Two_Players_Hover.png";
+	public static final String one_player_normal = "Buttons/one_p_button.png";
+	public static final String two_player_normal = "Buttons/two_p_button.png";
+	public static final String help_normal = "Buttons/help_button.png";
+	public static final String one_player_hover = "Buttons/one_p_button_hover.png";
+	public static final String two_player_hover = "Buttons/two_p_button_hover.png";
+	public static final String help_hover = "Buttons/help_button_hover.png";
+	
 	
 	public static final int MENU_WIDTH = Map.COURT_WIDTH + GameDashboard.WIDTH;
 	public static final int MENU_HEIGHT = Map.COURT_HEIGHT;
@@ -45,8 +49,10 @@ public class GameMenu extends JPanel {
 	private BufferedImage background_img;
 	private BufferedImage button1_normal;
 	private BufferedImage button2_normal;
+	private BufferedImage button3_normal;
 	private BufferedImage button1_hover;
 	private BufferedImage button2_hover;
+	private BufferedImage button3_hover;
 	
 	public GameMenu(){
 		
@@ -60,11 +66,17 @@ public class GameMenu extends JPanel {
 			if(button2_normal == null){
 				button2_normal = ImageIO.read(new File(two_player_normal));
 			}
+			if(button3_normal == null){
+				button3_normal = ImageIO.read(new File(help_normal));
+			}
 			if(button1_hover == null){
 				button1_hover = ImageIO.read(new File(one_player_hover));
 			}
 			if(button2_hover == null){
 				button2_hover = ImageIO.read(new File(two_player_hover));
+			}
+			if(button3_hover == null){
+				button3_hover = ImageIO.read(new File(help_hover));
 			}
 		} catch (IOException e){
 			System.out.println("Internal Error" + e.getMessage());
@@ -178,12 +190,18 @@ public class GameMenu extends JPanel {
 		return new Dimension(MENU_WIDTH,  MENU_HEIGHT);
 	}
 	
-	
-	
 	@Override
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
 		g.drawImage(background_img, 0, 0, MENU_WIDTH, MENU_HEIGHT, null);
+		Graphics2D g2d = (Graphics2D) g;
+		g2d.setStroke(new BasicStroke(3));   //draw thick line;
+		/*
+		g2d.setColor(Color.white);
+		g2d.fillRect(BUTTON_INIT_X, ONEP_INIT_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+		g2d.fillRect(BUTTON_INIT_X, TWOP_INIT_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+		g2d.fillRect(BUTTON_INIT_X, HELP_INIT_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+		*/
 		if(mouse_on_button1){
 			g.drawImage(button1_hover, BUTTON_INIT_X, ONEP_INIT_Y, BUTTON_WIDTH, BUTTON_HEIGHT, null);
 		}
@@ -198,12 +216,13 @@ public class GameMenu extends JPanel {
 			g.drawImage(button2_normal, BUTTON_INIT_X, TWOP_INIT_Y, BUTTON_WIDTH, BUTTON_HEIGHT, null);
 		}
 		if(mouse_on_help){
-			g.drawImage(button2_hover, BUTTON_INIT_X, HELP_INIT_Y, BUTTON_WIDTH, BUTTON_HEIGHT, null);
+			g.drawImage(button3_hover, BUTTON_INIT_X, HELP_INIT_Y, BUTTON_WIDTH, BUTTON_HEIGHT, null);
 		}
 		else{
-			g.drawImage(button2_normal, BUTTON_INIT_X, HELP_INIT_Y, BUTTON_WIDTH, BUTTON_HEIGHT, null);
+			g.drawImage(button3_normal, BUTTON_INIT_X, HELP_INIT_Y, BUTTON_WIDTH, BUTTON_HEIGHT, null);
 		}
-		
-
 	}
+	
+	
+	
 }

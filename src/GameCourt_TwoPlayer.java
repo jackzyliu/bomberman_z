@@ -1,3 +1,4 @@
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,7 +10,12 @@ import java.io.IOException;
 import java.util.HashSet;
 
 import javax.imageio.ImageIO;
+import javax.swing.JPanel;
 import javax.swing.Timer;
+
+
+
+
 
 
 import java.awt.image.BufferedImage;
@@ -17,7 +23,7 @@ import java.io.File;
 import java.io.IOException;
 
 @SuppressWarnings("serial")
-public class GameCourt_TwoPlayer extends GameCourt{
+public class GameCourt_TwoPlayer extends JPanel{
 	
 	public static final String player1_won_img = "Misc/player1_won.png";
 	public static final String player2_won_img = "Misc/player2_won.png";
@@ -28,7 +34,11 @@ public class GameCourt_TwoPlayer extends GameCourt{
 	public static final int OK_Y = 300;
 	public static final int OK_WIDTH = Map.TILE_SIZE;
 	public static final int OK_HEIGHT = Map.TILE_SIZE;
-
+	
+	// Update interval for timer in milliseconds 
+	public static final int INTERVAL = 10; 
+	
+	
 	/**
 	 * Status
 	 */
@@ -101,13 +111,12 @@ public class GameCourt_TwoPlayer extends GameCourt{
 						setVisible(false);
 						Game.setState(GameState.MENU);
 						try {
+							result = GameResult.QUIT;
 							Game.switchPane(false);
 						} catch (IOException e1) {
 
 							e1.printStackTrace();
 						}
-						
-						
 					}
 				}
 				
@@ -162,7 +171,7 @@ public class GameCourt_TwoPlayer extends GameCourt{
 				}
 				player1.collectItems();
 				player1.interactWithLastBubble();
-				map.interactWithUnwalkables(player1);
+				player1.interactWithUnwalkables();
 
 				
 			}
@@ -212,7 +221,7 @@ public class GameCourt_TwoPlayer extends GameCourt{
 				}
 				player2.collectItems();
 				player2.interactWithLastBubble();
-				map.interactWithUnwalkables(player2);
+				player2.interactWithUnwalkables();
 			}
 			
 			
@@ -258,30 +267,32 @@ public class GameCourt_TwoPlayer extends GameCourt{
      * This method is called every time the timer defined
      * in the constructor triggers.
      */
-	@Override
 	void tick(){
 		if (playing) {
 			player1.interactWithLastBubble();
 			player1.move();
 			player1.trackBubbles();
-			player1.stateControll();
+			player1.stateControl();
 			
 			player2.interactWithLastBubble();
 			player2.move();
 			player2.trackBubbles();
-			player2.stateControll();
+			player2.stateControl();
 			
 			map.trackExplosions();
-			map.interactWithUnwalkables(player1);
-			map.interactWithUnwalkables(player2);
-			
+
 			game_dashboard.setPlayerScore(1, player1.getDeathTimes());
 			game_dashboard.setPlayerScore(2, player2.getDeathTimes());
 			
-			playing = !game_dashboard.isOver();
+			playing = !game_dashboard.isOver() && result != GameResult.QUIT;
 			
+			
+			if(!game_dashboard.visible){
+				result = GameResult.QUIT;
+				setVisible(false);
+			}
 			repaint();
-			setVisible(game_dashboard.visible);
+			
 			
 		} 
 		else{
@@ -297,8 +308,15 @@ public class GameCourt_TwoPlayer extends GameCourt{
 			else{
 				result = GameResult.PLAYER2;
 			}
-			repaint();
+			if(this.isVisible()){
+				if(!game_dashboard.visible){
+					result = GameResult.QUIT;
+					setVisible(false);
+				}
+				repaint();
+			}
 			
+
 		}
 	}
 
@@ -314,6 +332,7 @@ public class GameCourt_TwoPlayer extends GameCourt{
 		
 		//draw the person in the front first
 		//TODO make this a separate method while developing multi-layer mode
+		
 		if(player1.pos_y <= player2.pos_y){
 			player1.draw(g);
 			player2.draw(g);
@@ -322,6 +341,7 @@ public class GameCourt_TwoPlayer extends GameCourt{
 			player2.draw(g);
 			player1.draw(g);		
 		}
+		
 		
 		//draw result
 		if(result == GameResult.PLAYER1){
@@ -341,5 +361,11 @@ public class GameCourt_TwoPlayer extends GameCourt{
 		}
 		
 	}
+	
+	@Override
+	public Dimension getPreferredSize(){
+		return new Dimension(Map.COURT_WIDTH, Map.COURT_HEIGHT);
+	}
+
 
 }

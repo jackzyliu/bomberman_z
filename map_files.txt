@@ -1,0 +1,3 @@
+Map/map1.txt, Map_mini/map1_preview.png
+Map/map2.txt, Map_mini/map2_preview.png
+Map/map3.txt, Map_mini/map3_preview.png

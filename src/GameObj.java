@@ -241,6 +241,20 @@ public class GameObj {
 		return new Point (pos_x + width/2, pos_y + height /2 );
 	}
 	
-
+	 /**
+	  * This method reverses a given direction
+	  * @param d
+	  * @return
+	  */
+	public Direction reverseDir(Direction d){
+		if(d == null) return null;
+		switch(d){
+		case UP: return Direction.DOWN; 
+		case DOWN: return Direction.UP; 
+		case RIGHT: return Direction.LEFT; 
+		case LEFT: return Direction.RIGHT;
+		default: return null;
+		}
+	}
 	
 }

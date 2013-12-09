@@ -50,8 +50,8 @@ public class Map {
 	
 	public static final int PLAYER1_INIT_X = 2*TILE_SIZE;
 	public static final int PLAYER1_INIT_Y = 2*TILE_SIZE;
-	public static final int PLAYER2_INIT_X = COURT_WIDTH - 3*TILE_SIZE;
-	public static final int PLAYER2_INIT_Y = COURT_HEIGHT - 3*TILE_SIZE;
+	public static final int PLAYER2_INIT_X = COURT_WIDTH - 3*TILE_SIZE + 1;
+	public static final int PLAYER2_INIT_Y = COURT_HEIGHT - 3*TILE_SIZE +1;
 	
 	public char[][] map = new char[HEIGHT][WIDTH];
 	public Point[][] grid = new Point[HEIGHT][WIDTH];
@@ -60,14 +60,16 @@ public class Map {
 	private static BufferedImage tree_img;
 	private static BufferedImage block_img;
 	private static BufferedImage ground_img;
-
-	public Deque<Explosion> explosions;	
+	
+	
+	private Deque<Explosion> explosions;	
 	private Iterator<Explosion> itr_e;    
 	 // the iterator to iterator over explosions
-	private Hashtable<Point, Unwalkable> unwalkables;    
+	public Hashtable<Point, Unwalkable> unwalkables;    
 	//store and update unwalkables
 	public Hashtable<Point, Powerup> items;
 	//store and update walkables
+	private ArrayList<Point> initial_positions;
 	
 	//Note: the POINTS are indices in arrays
 	
@@ -84,6 +86,7 @@ public class Map {
 		//player_initBubbles = new Hashtable<Integer, Bubble>();
 		items = new Hashtable<Point, Powerup>();
 		unwalkables = new Hashtable<Point, Unwalkable>();
+		initial_positions = new ArrayList<Point>();
 		
 		
 		//allocating points to drop bombs and items
@@ -109,13 +112,23 @@ public class Map {
 				i++;
 				String[] tiles = line.split(",");
 				for(int j = 0; j < WIDTH; j++){
-					map[i][j] = tiles[j].charAt(0);
+					if(tiles[j].charAt(0) == 'i'){
+						initial_positions.add(new Point(i,j));
+						map[i][j] = GROUND;
+					}
+					else{
+						map[i][j] = tiles[j].charAt(0);
+					}
 					addMapParam(i,j);
 					assignItems(i,j);
 				}
 				line = br.readLine();
 			}
 			
+			//to minimize the heap memory
+			initial_positions.trimToSize();
+			
+
 		} catch (IOException e){
 			System.out.println("Internal Error: " + e.getMessage());
 		} finally{
@@ -254,13 +267,8 @@ public class Map {
 	 * @return
 	 */
 	public Point getPlayerInitPosition(int player_code){
-		if(player_code == 1){
-			return new Point (PLAYER1_INIT_X, PLAYER1_INIT_Y);
-		}
-		else if(player_code == 2){
-			return new Point (PLAYER2_INIT_Y, PLAYER2_INIT_Y);
-		}
-		else return null;
+		Point p = initial_positions.get(player_code-1);
+		return new Point(p.y * TILE_SIZE, p.x * TILE_SIZE);
 	}
 	/**
 	 * This method paints the map BACKGROUND
@@ -301,8 +309,8 @@ public class Map {
 	 * @return
 	 */
 	public Point toIndex(int x, int y){
-		int i = clip((int) y/TILE_SIZE, 'h') ;
-		int j = clip((int) x/TILE_SIZE, 'w') ;
+		int i = clip((int) y/TILE_SIZE , 'h') ;
+		int j = clip((int) x/TILE_SIZE , 'w') ;
 		
 		return new Point(i,j);
 	}
@@ -314,15 +322,12 @@ public class Map {
 	 * @param player_code
 	 * @return whether the player is blocked by movement
 	 */
-	public boolean isBlocked(int x, int y, int player_code){
-		
-		int i = toIndex(x,y).x;
-		int j = toIndex(x,y).y;
-		
+	public boolean isBlocked(int i, int j, Player player){
 		return (map[i][j] == WALL 
 				|| map[i][j] == BUBBLE 
-				|| map[i][j] == BLOCK) 
-				&& map[i][j] != (char)player_code;
+				|| map[i][j] == BLOCK
+				|| map[i][j] == TREE)
+				&& map[i][j] != player.code;
 		//the tile is not an open floor unit or an explosion or the bubble that
 		//the player is already standing on or items
 	}
@@ -341,6 +346,7 @@ public class Map {
 	 */
 	public boolean receiveInitBubbles(int i, int j, int player_code, int range){
 		if (map[i][j] != GROUND){
+			System.out.println("here");
 			return false;
 		}
 		else{
@@ -391,7 +397,7 @@ public class Map {
 			}
 			else{
 				char tile = map[h][j];
-				if(tile == BLOCK){   // explosions do not go through blocks
+				if(tile == BLOCK || tile == BLOCK_BREAK){   // explosions do not go through blocks
 					map[h][j] = BLOCK_BREAK;
 					break;
 				}
@@ -408,7 +414,7 @@ public class Map {
 			}
 			else{
 				char tile = map[h][j];
-				if(tile == BLOCK){ // explosions do not go through blocks
+				if(tile == BLOCK || tile == BLOCK_BREAK){  // explosions do not go through blocks
 					map[h][j] = BLOCK_BREAK;
 					break;
 				}
@@ -424,7 +430,7 @@ public class Map {
 			}
 			else{
 				char tile = map[i][w];
-				if(tile == BLOCK){   // explosions do not go through blocks
+				if(tile == BLOCK || tile == BLOCK_BREAK){  // explosions do not go through blocks
 					map[i][w] = BLOCK_BREAK;
 					break;
 				}
@@ -440,7 +446,8 @@ public class Map {
 			}
 			else{
 				char tile = map[i][w];
-				if(tile == BLOCK){   // explosions do not go through blocks
+				if(tile == BLOCK || tile == BLOCK_BREAK){  
+					// explosions do not go through blocks
 					map[i][w] = BLOCK_BREAK;
 					break;
 				}
@@ -499,11 +506,13 @@ public class Map {
 				}
 				else{
 					items.remove(new Point(i,j));
+					map[i][j] = GROUND;
 				}
 			}
 			else{
 				map[i][j] = GROUND;
 			}
+			
 			unwalkables.remove(new Point (i,j));
 		}
 	}
@@ -557,10 +566,17 @@ public class Map {
 		
 	}
 	
-	
+	/**
+	 * If the index is explodable
+	 * @param i
+	 * @param j
+	 * @return
+	 */
 	public boolean isExplodable(int i, int j){
-		return (map[i][j] != WALL && map [i][j] != TREE); 
+		return (map[i][j] != WALL && map [i][j] != TREE ); 
 	}
+	
+	
 	/**
 	 * This method removes the item from the item list.
 	 * @param Point of the item
@@ -572,29 +588,12 @@ public class Map {
 	}
 	
 	/**
-	 * This method specifies the interaction between any player and unwalkables,
-	 * including bubbles, blocks, walls, that are NOT simply unwalkable.
-	 * @param player
+	 * @return an integer indicating the total number of players that are supp
+	 * orted in this map; varies based on maps
 	 */
-	public void interactWithUnwalkables(Player player){
-		Point player_index = toIndex(player.getCenter().x, player.getCenter().y);
-		for(int i = player_index.x - 1; i <= player_index.x + 1; i++ ){
-			for(int j = player_index.y - 1; j <= player_index.y + 1; j++ ){
-				if(unwalkables.get(new Point(i, j)) != null){
-					Unwalkable unwalkable = unwalkables.get(new Point(i, j));
-					if(player.intersects(unwalkable)){
-						//can only move if the player is moving AWAY
-						if(!unwalkable.isWalkingAway(player)){
-							player.v_x = 0;
-							player.v_y = 0;  
-						}
-					}
-					else{
-						player.stop(player.hitObj(unwalkable));
-					}
-				}
-			}		
-		}
+	public int supportNumOfPlayer(){
+		return initial_positions.size();
 	}
+
 
 }

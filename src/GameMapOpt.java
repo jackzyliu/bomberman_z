@@ -111,6 +111,7 @@ public class GameMapOpt extends JPanel{
 				line = br.readLine();
 			}
 			
+			maps_preview.trimToSize();
 			//read background image
 			if(bg_img == null){
 				bg_img = ImageIO.read(new File(background_img));

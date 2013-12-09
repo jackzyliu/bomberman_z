@@ -1,0 +1,12 @@
+t,t,t,t,t,t,t,t,t,t,t,t
+t,b,b,w,b,g,i,b,w,g,w,t
+t,g,w,b,t,g,b,t,g,i,g,t
+t,i,g,b,b,b,g,b,b,b,w,t
+t,g,w,b,t,g,b,t,w,b,b,t
+t,b,b,b,b,g,b,b,b,b,b,t
+t,b,b,b,b,b,g,b,b,b,b,t
+t,b,b,w,t,b,g,t,g,w,g,t
+t,w,g,b,b,g,b,b,b,b,b,t
+t,i,g,b,t,g,b,t,b,w,g,t
+t,w,g,b,b,i,g,b,b,g,i,t
+t,t,t,t,t,t,t,t,t,t,t,t

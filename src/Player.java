@@ -33,6 +33,8 @@ import javax.imageio.ImageIO;
 public class Player extends GameObj {
 	
 	 public static final String dead_img = "Character/dead_player.gif";
+	 
+	
 	/**
 	 * Constants Section
 	 */
@@ -52,7 +54,7 @@ public class Player extends GameObj {
 	 /**
 	  * Player Stats
 	  */
-	 private int vel = 1;
+	 protected int vel = 1;
 	 private int range = 1;
 	 private int num = 1;
 	 private boolean onBubble = false;
@@ -70,13 +72,13 @@ public class Player extends GameObj {
 	 //to keep track of the items;
 
 
-	 private Map map;
-	 private int code;				//the player's code, e.g player "1", player
+	 protected Map map;
+	 protected int code;				//the player's code, e.g player "1", player
 	 								//"2"
 	 /**
 	  * State Control Section
 	  */
-	 private enum PlayerState{
+	 protected enum PlayerState{
 		 DEAD,
 		 RESPAWN,
 		 NORMAL,
@@ -91,11 +93,11 @@ public class Player extends GameObj {
 	 /**
 	  * Animation Section
 	  */
-	 private Animation animation;
-	 private Direction direction;
-	 private boolean is_idle;
-	 private boolean display;
-	 private boolean dead_display;
+	 protected Animation animation;
+	 protected Direction direction;
+	 protected boolean is_idle;
+	 protected boolean display;
+	 protected boolean dead_display;
 	 private BufferedImage[] front;
 	 private BufferedImage[] back;
 	 private BufferedImage[] right;
@@ -162,7 +164,7 @@ public class Player extends GameObj {
 	 /**
 	  * This method sets the animation for the player
 	  */
-	private void setAniamtion(){
+	public void setAniamtion(){
 
 		if (v_x == 0 && v_y ==0){
 			is_idle = true;
@@ -277,7 +279,7 @@ public class Player extends GameObj {
 	public void move(){
 	   if(state != PlayerState.DEAD){
 		   
-		   map.interactWithUnwalkables(this);
+		   interactWithUnwalkables();
 		   pos_x += v_x;
 		   pos_y += v_y;
 		   clip();
@@ -353,15 +355,19 @@ public class Player extends GameObj {
 		switch (d) {
 		case UP:   
 			v_y = -vel;
+			v_x = 0;
 			break;
 		case DOWN:  
 			v_y = vel;
+			v_x = 0;
 			break;
 		case LEFT: 
 			v_x = -vel;
+			v_y = 0;
 			break;
 		case RIGHT: 
 			v_x = vel;
+			v_y = 0;
 			break;
 		}
    }
@@ -531,7 +537,7 @@ public class Player extends GameObj {
 	/**
 	 * @return if the player has touched explosion
 	 */
-	private boolean isExploded(){
+	public boolean isExploded(){
 		Point p = map.toIndex(getCenter().x, getCenter().y);
 		return map.map[p.x][p.y] == Map.EXPLOSION;
 	}
@@ -539,7 +545,7 @@ public class Player extends GameObj {
 	/**
 	 * this method controls the player's state
 	 */
-	public void stateControll(){
+	public void stateControl(){
 		if(state == PlayerState.DEAD){
 			death_time --;  //count down death time
 			if(death_time > DEATH_PEN - 100){
@@ -572,18 +578,6 @@ public class Player extends GameObj {
 			if(isExploded()){
 				state = PlayerState.DEAD;
 				death_times ++;   //count of number death times
-				
-				//give out all the items
-				Enumeration<Powerup> items = my_items.keys();
-				while(items.hasMoreElements()){
-					Powerup item = items.nextElement();
-					int num = my_items.get(item);
-					for (int x = num; x >= 0 ; x --){
-						map.items.put
-							(map.toIndex(item.getCenter().x, item.getCenter().y), 
-							item);
-					}
-				}
 			}
 		}
 	}
@@ -591,6 +585,49 @@ public class Player extends GameObj {
 	public int getDeathTimes(){
 		return death_times;
 	}
+	
+	
+	public boolean isDead(){
+		return state == PlayerState.DEAD;
+	}
+	
+	public PlayerState getState(){
+		return this.state;
+	}
+	
+	public void setState(PlayerState state){
+		this.state = state;
+	}
+	
+	/**
+	 * This method specifies the interaction between any player and unwalkables,
+	 * including bubbles, blocks, walls, that are NOT simply unwalkable.
+	 */
+	public void interactWithUnwalkables(){
+		Point index = map.toIndex(getCenter().x, getCenter().y);
+		for(int i = map.clip(index.x - 1, 'h'); 
+				i <= map.clip(index.x + 1, 'h'); 
+				i++ ){
+			for(int j = map.clip(index.y - 1, 'w'); 
+					j <= map.clip(index.y + 1, 'w'); 
+					j++ ){
+				
+				if(map.unwalkables.get(new Point(i, j)) != null){
+					Unwalkable unwalkable = map.unwalkables.get(new Point(i, j));
+					if(intersects(unwalkable)){
+						//can only move if the player is moving AWAY
+						if(!unwalkable.isWalkingAway(this)){
+							v_x = 0;
+							v_y = 0;  
+						}
+					}
+					else{						
+						stop(hitObj(unwalkable));
+						}
+					}
+				}
+			}		
+		}
 }
    
    
