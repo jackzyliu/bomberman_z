@@ -14,7 +14,11 @@ import java.util.Timer;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
-
+/**
+ * The map selection menu before each game session.
+ * @author Zheyuan Liu
+ *
+ */
 public class GameMapOpt extends JPanel{
 	
 	//file paths

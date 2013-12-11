@@ -352,7 +352,10 @@ public class Creep_AI extends Player{
 			if(this.isExploded()){
 				state = CreepState.DEAD;
 			}
-			else if(!enemyWithinRange()){
+			else if(!enemyWithinRange()|| 
+					 map.isBlocked(this.getNextTile(this.direction).x, 
+							       this.getNextTile(this.direction).y, 
+				                   this) ){
 				state = CreepState.NORMAL;
 			}
 		}
@@ -363,7 +366,10 @@ public class Creep_AI extends Player{
 			if(this.isExploded()){
 				state = CreepState.DEAD;
 			}
-			else if(this.enemyWithinRange()){
+			else if(this.enemyWithinRange() && 
+					!map.isBlocked(this.getNextTile(this.direction).x, 
+							       this.getNextTile(this.direction).y, 
+				                   this) ){
 				state = CreepState.ANGRY;
 			}
 		}
@@ -461,9 +467,9 @@ public class Creep_AI extends Player{
 		Point current = map.toIndex(getCenter().x, getCenter().y);
 		if(this.passedCenterOfTile()){
 			if(this.path.hasNext(current)){
-				//System.out.println(current);
+
 				Point next = this.path.getNext(current);
-				//System.out.println(next);
+
 				if(next.x < current.x){
 					return Direction.UP;
 				}

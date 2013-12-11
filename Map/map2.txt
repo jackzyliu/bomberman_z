@@ -1,6 +1,6 @@
 t,t,t,t,t,t,t,t,t,t,t,t
 t,g,i,w,b,b,b,w,b,g,i,t
-t,w,b,w,b,g,w,b,g,w,g,t
+t,w,g,w,b,g,w,b,g,w,g,t
 t,b,b,w,i,g,w,b,i,w,b,t
 t,w,b,w,b,b,w,b,b,w,b,t
 t,w,b,b,b,w,b,b,w,b,b,t

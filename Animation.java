@@ -14,9 +14,6 @@ public class Animation {
 	private long startTime;
 	private long delay;
 	
-	public Animation(){
-		
-	}
 	
 	public void setFrames(BufferedImage[] images){
 		frames = images;

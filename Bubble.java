@@ -6,7 +6,11 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-
+/**
+ * This class specifies the bubble object
+ * @author Zheyuan Liu
+ *
+ */
 public class Bubble extends GameObj {
 	public static final String img_file = "Bombs/Bomb_f01.png";
 	public static final int OBJ_WIDTH = 40;

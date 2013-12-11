@@ -14,7 +14,11 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
-
+/**
+ * This class is the main menu
+ * @author Zheyuan Liu
+ *
+ */
 @SuppressWarnings("serial")
 public class GameMenu extends JPanel {
 	
@@ -22,10 +26,11 @@ public class GameMenu extends JPanel {
 	public static final String one_player_normal = "Buttons/one_p_button.png";
 	public static final String two_player_normal = "Buttons/two_p_button.png";
 	public static final String help_normal = "Buttons/help_button.png";
+	public static final String general_normal = "Buttons/general_info.png";
 	public static final String one_player_hover = "Buttons/one_p_button_hover.png";
 	public static final String two_player_hover = "Buttons/two_p_button_hover.png";
 	public static final String help_hover = "Buttons/help_button_hover.png";
-	
+	public static final String general_hover = "Buttons/general_info_hover.png";
 	
 	public static final int MENU_WIDTH = Map.COURT_WIDTH + GameDashboard.WIDTH;
 	public static final int MENU_HEIGHT = Map.COURT_HEIGHT;
@@ -40,19 +45,24 @@ public class GameMenu extends JPanel {
 											BUTTON_HEIGHT;
 	public static final int HELP_INIT_Y = (MENU_HEIGHT-BUTTON_HEIGHT)/2 +  
 											2*BUTTON_HEIGHT;
+	public static final int GENERAL_INIT_Y = (MENU_HEIGHT-BUTTON_HEIGHT)/2 +  
+											3*BUTTON_HEIGHT;
 	
 	private boolean mouse_on_button1;
 	private boolean mouse_on_button2;
 	private boolean mouse_on_help;
+	private boolean mouse_on_general;
 	
 	
 	private BufferedImage background_img;
 	private BufferedImage button1_normal;
 	private BufferedImage button2_normal;
 	private BufferedImage button3_normal;
+	private BufferedImage button4_normal;
 	private BufferedImage button1_hover;
 	private BufferedImage button2_hover;
 	private BufferedImage button3_hover;
+	private BufferedImage button4_hover;
 	
 	public GameMenu(){
 		
@@ -69,6 +79,9 @@ public class GameMenu extends JPanel {
 			if(button3_normal == null){
 				button3_normal = ImageIO.read(new File(help_normal));
 			}
+			if(button4_normal == null){
+				button4_normal = ImageIO.read(new File(general_normal));
+			}
 			if(button1_hover == null){
 				button1_hover = ImageIO.read(new File(one_player_hover));
 			}
@@ -78,13 +91,14 @@ public class GameMenu extends JPanel {
 			if(button3_hover == null){
 				button3_hover = ImageIO.read(new File(help_hover));
 			}
+			if(button4_hover == null){
+				button4_hover = ImageIO.read(new File(general_hover));
+			}
 		} catch (IOException e){
 			System.out.println("Internal Error" + e.getMessage());
 		}
 		
 		addMouseListener(new MouseAdapter(){
-			
-			
 			private int buttonPressed(MouseEvent e){
 				int m_x = e.getX();
 				int m_y = e.getY();
@@ -103,35 +117,49 @@ public class GameMenu extends JPanel {
 							&& m_y < (HELP_INIT_Y  + BUTTON_HEIGHT)){
 						return 3;
 					}
+					else if(m_y > GENERAL_INIT_Y
+							&& m_y < (GENERAL_INIT_Y + BUTTON_HEIGHT)){
+						return 4;
+					}
 				}
 				return 0;
 			}
 				
 			public void mousePressed(MouseEvent e) {
-				
 				switch(buttonPressed(e)){
 				case 1:
 					mouse_on_button1 = true;
 					mouse_on_button2 = false;
 					mouse_on_help = false;
+					mouse_on_general = false;
 					repaint();
 					break;
 				case 2:
 					mouse_on_button1 = false;
 					mouse_on_button2 = true;
 					mouse_on_help = false;
+					mouse_on_general = false;
 					repaint();
 					break;
 				case 3:
 					mouse_on_button1 = false;
 					mouse_on_button2 = false;
 					mouse_on_help = true;
+					mouse_on_general = false;
 					repaint();
 					break;
+				case 4:
+					mouse_on_button1 = false;
+					mouse_on_button2 = false;
+					mouse_on_help = false;
+					mouse_on_general = true;
+					repaint();
+					break;	
 				default:
 					mouse_on_button1 = false;
 					mouse_on_button2 = false;
 					mouse_on_help = false;
+					mouse_on_general = false;
 					repaint();
 					break;
 				}
@@ -144,6 +172,7 @@ public class GameMenu extends JPanel {
 				mouse_on_button1 = false;
 				mouse_on_button2 = false;
 				mouse_on_help = false;
+				mouse_on_general = false;
 				repaint();
 				switch(buttonPressed(e)){
 				case 1:
@@ -151,7 +180,6 @@ public class GameMenu extends JPanel {
 						Game.setState(GameState.ONEP);
 						Game.switchPane(true);
 					} catch (IOException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 					setVisible(false);
@@ -161,7 +189,6 @@ public class GameMenu extends JPanel {
 						Game.setState(GameState.TWOP);
 						Game.switchPane(true);
 					} catch (IOException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 					setVisible(false);
@@ -171,7 +198,15 @@ public class GameMenu extends JPanel {
 						Game.setState(GameState.HELP);
 						Game.switchPane(false);
 					} catch (IOException e1) {
-						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					setVisible(false);
+					break;
+				case 4:
+					try {
+						Game.setState(GameState.GENERAL);
+						Game.switchPane(false);
+					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
 					setVisible(false);
@@ -196,19 +231,13 @@ public class GameMenu extends JPanel {
 		g.drawImage(background_img, 0, 0, MENU_WIDTH, MENU_HEIGHT, null);
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.setStroke(new BasicStroke(3));   //draw thick line;
-		/*
-		g2d.setColor(Color.white);
-		g2d.fillRect(BUTTON_INIT_X, ONEP_INIT_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-		g2d.fillRect(BUTTON_INIT_X, TWOP_INIT_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-		g2d.fillRect(BUTTON_INIT_X, HELP_INIT_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-		*/
+
 		if(mouse_on_button1){
 			g.drawImage(button1_hover, BUTTON_INIT_X, ONEP_INIT_Y, BUTTON_WIDTH, BUTTON_HEIGHT, null);
 		}
 		else{
 			g.drawImage(button1_normal, BUTTON_INIT_X, ONEP_INIT_Y, BUTTON_WIDTH, BUTTON_HEIGHT, null);
 		}
-		
 		if(mouse_on_button2){
 			g.drawImage(button2_hover, BUTTON_INIT_X, TWOP_INIT_Y, BUTTON_WIDTH, BUTTON_HEIGHT, null);
 		}
@@ -220,6 +249,12 @@ public class GameMenu extends JPanel {
 		}
 		else{
 			g.drawImage(button3_normal, BUTTON_INIT_X, HELP_INIT_Y, BUTTON_WIDTH, BUTTON_HEIGHT, null);
+		}
+		if(mouse_on_general){
+			g.drawImage(button4_hover, BUTTON_INIT_X, GENERAL_INIT_Y, BUTTON_WIDTH, BUTTON_HEIGHT, null);
+		}
+		else{
+			g.drawImage(button4_normal, BUTTON_INIT_X, GENERAL_INIT_Y, BUTTON_WIDTH, BUTTON_HEIGHT, null);
 		}
 	}
 	

@@ -6,6 +6,11 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+/**
+ * This class is the explosion object, which inherits Bubble
+ * @author Zheyuan Liu
+ *
+ */
 public class Explosion extends Bubble {
 	
 	private int duration = 30;

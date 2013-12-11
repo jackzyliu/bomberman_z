@@ -18,7 +18,7 @@ import javax.swing.*;
 public class Game implements Runnable {
 	
 
-	private final static JFrame frame = new JFrame("Bubble/Bomb Fight");
+	private final static JFrame frame = new JFrame("Bomberman-Z");
     private static GameState state = GameState.MENU;
     private static String map_file;
     //private static 
@@ -31,59 +31,41 @@ public class Game implements Runnable {
 		else{
 			switch(state){
 			case TWOP:
-				removePrevPanes();
-				final GameDashboard dashboard_2 = new GameDashboard(GameState.TWOP);
+				final GameDashboard dashboard_2 = 
+						new GameDashboard(GameState.TWOP);
 				frame.add(dashboard_2, BorderLayout.EAST);
 				// Main playing area
-				final GameCourt_TwoPlayer court_2p = new GameCourt_TwoPlayer(dashboard_2, map_file);
+				final GameCourt_TwoPlayer court_2p = 
+						new GameCourt_TwoPlayer(dashboard_2, map_file);
 				frame.add(court_2p, BorderLayout.CENTER);
-				frame.revalidate();
-				frame.repaint();
 				court_2p.reset();
 				break;
 			case MENU:
-				removePrevPanes();
 				final GameMenu game_menu = new GameMenu();
 				frame.add(game_menu);
-				frame.revalidate();
-				frame.repaint();
 				break;
 			case ONEP:
-				removePrevPanes();
-				
-				final GameDashboard dashboard_1 = new GameDashboard(GameState.ONEP);
+				final GameDashboard dashboard_1 = 
+						new GameDashboard(GameState.ONEP);
 				frame.add(dashboard_1, BorderLayout.EAST);
 				// Main playing area
-				final GameCourt_OnePlayer court_1p = new GameCourt_OnePlayer(dashboard_1, map_file);
+				final GameCourt_OnePlayer court_1p = 
+						new GameCourt_OnePlayer(dashboard_1, map_file);
 				frame.add(court_1p, BorderLayout.CENTER);
-				frame.revalidate();
-				frame.repaint();
 				court_1p.reset();
-				
 				break;
 			case HELP:
-				removePrevPanes();
 				final GameHelp game_help = new GameHelp();
 				frame.add(game_help);
-				frame.revalidate();
-				frame.repaint();
+				break;
+			case GENERAL:
+				final GameGeneral game_general = new GameGeneral();
+				frame.add(game_general);
 				break;
 			}
 		}
 	}
 	
-	/**
-	 * Remove previous panels after switching
-	 */
-	private static void removePrevPanes(){
-		Component[] current_comps = frame.getComponents();
-		for(int i = 0; i < current_comps.length; i++){
-			if(current_comps[i] instanceof JPanel){
-				System.out.println("here");
-				frame.remove(current_comps[i]);
-			}
-		}
-	}
 	
 	
     public void run(){

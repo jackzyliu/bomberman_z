@@ -6,46 +6,81 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+
+
+
+
+
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+/**
+ * This class contains the game logic for the two-player mode
+ * @author Zheyuan Liu
+ *
+ */
 @SuppressWarnings("serial")
-public class GameCourt_OnePlayer extends JPanel {
+public class GameCourt_TwoPlayer extends JPanel{
 	
-	 public static final String CLEAR_img = "Misc/clear.png";
-	 public static final String LOSE_img = "Misc/lose.png";
-	 public static final String OK_img = "Buttons/OK.png";
-	 
-	 public static final int OK_X = (Map.COURT_WIDTH - Map.TILE_SIZE)/2;
-	 public static final int OK_Y = 300;
-	 public static final int OK_WIDTH = Map.TILE_SIZE;
-	 public static final int OK_HEIGHT = Map.TILE_SIZE;
+	public static final String player1_won_img = "Misc/player1_won.png";
+	public static final String player2_won_img = "Misc/player2_won.png";
+	public static final String draw_img = "Misc/draw.png";
+	public static final String OK_img = "Buttons/OK.png";
+	
+	public static final int OK_X = (Map.COURT_WIDTH - Map.TILE_SIZE)/2;
+	public static final int OK_Y = 300;
+	public static final int OK_WIDTH = Map.TILE_SIZE;
+	public static final int OK_HEIGHT = Map.TILE_SIZE;
+	
 	// Update interval for timer in milliseconds 
 	public static final int INTERVAL = 10; 
 	
+	
+	/**
+	 * Status
+	 */
 	private boolean playing;
 	private GameResult result;
-	private GameDashboard game_dashboard;
-	private Player player1;         
-	private ArrayList<Creep_AI> creeps;
 
+
+	/**
+	 * Display
+	 */
+	private GameDashboard game_dashboard;
 	
+	/**
+	 * Element
+	 */
+	private Player player1;         
+	private Player player2;
 	private HashSet<Integer> keypressed = new HashSet<Integer>();
 	//to keep track the keys pressed
 	private Map map;
 	
-	private BufferedImage clear;
-	private BufferedImage lose;
-	private BufferedImage ok;
+	/**
+	 * Images
+	 */
 	
-	public GameCourt_OnePlayer
+	private BufferedImage player1_won;
+	private BufferedImage player2_won;
+	private BufferedImage draw;
+	private BufferedImage ok;
+
+	
+	/**
+	 * Constructor
+	 * @param game_dashboard
+	 * @param map_file
+	 * @throws IOException
+	 */
+	public GameCourt_TwoPlayer
 		(final GameDashboard game_dashboard, String map_file) throws IOException{
 		//super(status, game_timer);
 		Timer timer = new Timer(INTERVAL, new ActionListener(){
@@ -57,6 +92,15 @@ public class GameCourt_OnePlayer extends JPanel {
 		timer.start(); // MAKE SURE TO START THE TIMER!
 		setFocusable(true);
 		
+		try{
+			player1_won = ImageIO.read(new File(player1_won_img));
+			player2_won = ImageIO.read(new File(player2_won_img));
+			draw = ImageIO.read(new File(draw_img));
+			ok = ImageIO.read(new File(OK_img));
+
+		} catch (IOException e){
+			e.printStackTrace();
+		}
 		addMouseListener(new MouseAdapter(){
 			public void mouseClicked(MouseEvent e){
 				//if game is over
@@ -74,10 +118,12 @@ public class GameCourt_OnePlayer extends JPanel {
 							result = GameResult.QUIT;
 							Game.switchPane(false);
 						} catch (IOException e1) {
+
 							e1.printStackTrace();
 						}
 					}
 				}
+				
 			}
 			
 		});
@@ -91,7 +137,7 @@ public class GameCourt_OnePlayer extends JPanel {
 			private void keyActions_player1(){
 				//if space is pressed && the character walked out of the 
 				//previous bubble.
-				if(keypressed.contains(KeyEvent.VK_SPACE) ){
+				if(keypressed.contains(KeyEvent.VK_ENTER) ){
 					
 					player1.dropBubble();
 				}
@@ -130,49 +176,93 @@ public class GameCourt_OnePlayer extends JPanel {
 				player1.collectItems();
 				player1.interactWithLastBubble();
 				player1.interactWithUnwalkables();
+
+				
 			}
-		
+			/**Helper:
+			 * perform a series of actions related to a combination of keys
+			 *  pressed
+			 */
+			private void keyActions_player2(){
+				
+				//if space is pressed && the character walked out of the 
+				//previous bubble.
+				if(keypressed.contains(KeyEvent.VK_Z) ){
+					
+					player2.dropBubble();
+				}
+				//if only ONE of the left and right arrow keys are pressed 
+				if(keypressed.contains(KeyEvent.VK_F) 
+						&& keypressed.contains(KeyEvent.VK_H)){
+					player2.resetHor();
+				}
+				else {
+					if (keypressed.contains(KeyEvent.VK_F)){
+						player2.setDir(Direction.LEFT);
+					}
+					else if (keypressed.contains(KeyEvent.VK_H)){
+						player2.setDir(Direction.RIGHT);
+					}
+					else{
+						player2.resetHor();
+					}
+				}
+				//if only ONE of the up and down arrow keys are pressed 
+				if(keypressed.contains(KeyEvent.VK_T)
+						&& keypressed.contains(KeyEvent.VK_G)){
+					player2.resetVer();
+				}	
+				else{
+					if (keypressed.contains(KeyEvent.VK_T)){
+						player2.setDir(Direction.UP);
+					}
+					else if (keypressed.contains(KeyEvent.VK_G)){
+						player2.setDir(Direction.DOWN);
+					}
+					else{
+						player2.resetVer();
+					}
+				}
+				player2.collectItems();
+				player2.interactWithLastBubble();
+				player2.interactWithUnwalkables();
+			}
+			
+			
 			
 			public void keyPressed(KeyEvent e){
-				keypressed.add(e.getKeyCode());
-				keyActions_player1();
+				if(result == GameResult.NONE){
+					keypressed.add(e.getKeyCode());
+					keyActions_player1();
+					keyActions_player2();
+				}
+				
 			}
 			public void keyReleased(KeyEvent e){
-				if (!keypressed.isEmpty()){
-					keypressed.remove(e.getKeyCode());
+				if(result == GameResult.NONE){
+					if (!keypressed.isEmpty()){
+						keypressed.remove(e.getKeyCode());
+					}
+					keyActions_player1();
+					keyActions_player2();
 				}
-				keyActions_player1();
+				
 			}
 		});
 		
 		
-		try{
-			clear = ImageIO.read(new File(CLEAR_img));
-			lose = ImageIO.read(new File(LOSE_img));
-			ok = ImageIO.read(new File(OK_img));
-
-		} catch (IOException e){
-			e.printStackTrace();
-		}
-		
+		//initialize
+		this.result = GameResult.NONE;
 		this.game_dashboard = game_dashboard;
 		this.map = new Map(map_file);
-		this.creeps = new ArrayList<Creep_AI>();
-		this.result = GameResult.NONE;
 	}
 	/** (Re-)set the state of the game to its initial state.
 	 */
 	public void reset() {
 
 		player1 = new Player(map, 1);
-		//System.out.println(new Point(player1.pos_x,player1.pos_y));
-		
-		for(int i = 1; i < map.supportNumOfPlayer(); i++){
-			creeps.add(new  Creep_AI(map, player1, i+1));
-		}
-		creeps.trimToSize();
+		player2 = new Player(map, 2);
 		playing = true;
-		game_dashboard.setCreepNum(creeps.size());
 		// Make sure that this component has the keyboard focus
 		requestFocusInWindow();
 	}
@@ -181,7 +271,6 @@ public class GameCourt_OnePlayer extends JPanel {
      * This method is called every time the timer defined
      * in the constructor triggers.
      */
-
 	void tick(){
 		if (playing) {
 			player1.interactWithLastBubble();
@@ -189,45 +278,39 @@ public class GameCourt_OnePlayer extends JPanel {
 			player1.trackBubbles();
 			player1.stateControl();
 			
-			for(int i = 0; i < creeps.size(); i++){
-				creeps.get(i).stateControl();
-				if(creeps.get(i).isDead()){
-					creeps.remove(i);
-					i--;
-				}
-				else{
-					creeps.get(i).move();
-				}
-				
-			}
-			game_dashboard.setPlayerScore(2,  
-					map.supportNumOfPlayer() - creeps.size() - 1);
-			game_dashboard.setCreepNum(creeps.size());
+			player2.interactWithLastBubble();
+			player2.move();
+			player2.trackBubbles();
+			player2.stateControl();
 			
 			map.trackExplosions();
-			/*
-			map.interactWithUnwalkables(player1);
-*/
-			playing = !game_dashboard.isOver() && 
-					  !player1.isDead() &&
-					  !creeps.isEmpty() &&
-					  result != GameResult.QUIT;
+
+			game_dashboard.setPlayerScore(1, player1.getDeathTimes());
+			game_dashboard.setPlayerScore(2, player2.getDeathTimes());
+			
+			playing = !game_dashboard.isOver() && result != GameResult.QUIT;
+			
+			
 			if(!game_dashboard.visible){
 				result = GameResult.QUIT;
 				setVisible(false);
 			}
-
 			repaint();
+			
 			
 		} 
 		else{
 			game_dashboard.stopCounting();
-			
-			if(!player1.isDead() && creeps.isEmpty()){
-				result = GameResult.CLEAR;
+			int player1_score = game_dashboard.getPlayerScore(1);
+			int player2_score = game_dashboard.getPlayerScore(2);
+			if(player1_score == player2_score){
+				result = GameResult.DRAW;
+			}
+			else if (player1_score >= player2_score){
+				result = GameResult.PLAYER1;
 			}
 			else{
-				result = GameResult.LOSE;
+				result = GameResult.PLAYER2;
 			}
 			if(this.isVisible()){
 				if(!game_dashboard.visible){
@@ -236,97 +319,57 @@ public class GameCourt_OnePlayer extends JPanel {
 				}
 				repaint();
 			}
+			
 
 		}
 	}
 
 	@Override 
 	public void paintComponent(Graphics g){
+
 		super.paintComponent(g);
 		map.paint(g);
-		player1.paintBubbles(g);
 		map.drawAreaExplosionAndItems(g);
+		player1.paintBubbles(g);
+		player2.paintBubbles(g);
 		
-
+		
 		//draw the person in the front first
 		//TODO make this a separate method while developing multi-layer mode
-		drawQueue(g);
 		
-		//draw result
-		if(result == GameResult.CLEAR){
-			g.drawImage(clear, 0, (Map.COURT_HEIGHT - 100)/2, 
-					Map.COURT_WIDTH, 100, null);
-			g.drawImage(ok, OK_X, OK_Y, OK_WIDTH, OK_HEIGHT, null);
-		}
-		else if(result == GameResult.LOSE){
-			g.drawImage(lose, 0, (Map.COURT_HEIGHT - 100)/2, 
-					Map.COURT_WIDTH, 100, null);
-			g.drawImage(ok, OK_X, OK_Y, OK_WIDTH, OK_HEIGHT, null);
-		}
-		
-	}
-	
-	/**
-	 * This method makes a queue based creeps pos_x and draws the creeps and 
-	 * player
-	 * @param g
-	 */
-	private void drawQueue(Graphics g){
-		//do a bubble sort so that the creeps list is in descending order in 
-		//terms of their pos_y
-		if(creeps.isEmpty() ){
+		if(player1.pos_y <= player2.pos_y){
 			player1.draw(g);
+			player2.draw(g);
 		}
 		else{
-			boolean cont = true;
-			while (cont){
-				cont = false;
-				for(int i = 0; i < creeps.size()-1 ; i++){
-					if(creeps.get(i).pos_y > creeps.get(i+1).pos_y){
-						Creep_AI tmp = creeps.get(i);
-						creeps.remove(i);
-						creeps.add(i+1, tmp);
-						cont = true;
-					}
-				}
-			}
-			creeps.trimToSize();
-			if(player1.pos_y <= creeps.get(0).pos_y){
-				player1.draw(g);
-				for(int i = 0; i < creeps.size() ; i++){
-					creeps.get(i).draw(g);
-				}
-			}
-			else if (player1.pos_y >= creeps.get(creeps.size() -1).pos_y){
-				for(int i = 0; i < creeps.size() ; i++){
-					creeps.get(i).draw(g);
-				}
-				player1.draw(g);
-			}
-			else{
-				creeps.get(0).draw(g);
-				for(int i = 0; i < creeps.size()-1 ; i++){
-					if(player1.pos_y >= creeps.get(i).pos_y &&
-					   player1.pos_y <= creeps.get(i+1).pos_y){
-						player1.draw(g);
-						creeps.get(i+1).draw(g);
-					}
-					else{
-						creeps.get(i+1).draw(g);
-					}
-				}
-			}
+			player2.draw(g);
+			player1.draw(g);		
 		}
-	
+		
+		
+		//draw result
+		if(result == GameResult.PLAYER1){
+			g.drawImage(player1_won, 0, (Map.COURT_HEIGHT - 100)/2, 
+					Map.COURT_WIDTH, 100, null);
+			g.drawImage(ok, OK_X, OK_Y, OK_WIDTH, OK_HEIGHT, null);
+		}
+		else if(result == GameResult.PLAYER2){
+			g.drawImage(player2_won, 0, (Map.COURT_HEIGHT - 100)/2, 
+					Map.COURT_WIDTH, 100, null);
+			g.drawImage(ok, OK_X, OK_Y, OK_WIDTH, OK_HEIGHT, null);
+		}
+		else if(result == GameResult.DRAW){
+			g.drawImage(draw, 0, (Map.COURT_HEIGHT - 100)/2, 
+					Map.COURT_WIDTH, 100, null);
+			g.drawImage(ok, OK_X, OK_Y, OK_WIDTH, OK_HEIGHT, null);
+		}
+		
 	}
-
 	
 	@Override
 	public Dimension getPreferredSize(){
 		return new Dimension(Map.COURT_WIDTH, Map.COURT_HEIGHT);
 	}
-	
+
 
 }
-
-

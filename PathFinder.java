@@ -42,7 +42,6 @@ public class PathFinder {
 	
 	public Path findPath(Player e, int t_i, int t_j){
 		if(map.isBlocked(t_i, t_j, e)) {
-			//System.out.println("here2");
 			return null;
 		}
 		
@@ -59,8 +58,7 @@ public class PathFinder {
 		//the body of search
 		int max_depth = 0;
 		while( max_depth < this.max_depth && unchecked.size() != 0 ){
-			
-			//System.out.println("here3");
+
 			//if we are already on the target node
 			Node current = unchecked.get(0);
 			if( current == nodes[t_i][t_j]){
@@ -86,7 +84,7 @@ public class PathFinder {
 					
 					
 					if(!map.isBlocked(i, j, e) && (i != start.x || j!= start.y)){
-						//System.out.println("here4");
+
 						int next_cost = current.path_cost + this.movement;
 						Node neighbor = nodes[i][j];
 						//this.visited[i][j] = true;
@@ -124,11 +122,11 @@ public class PathFinder {
 		//now we have finished the search 
 		//if the target node has no parent then we return null path
 		if(nodes[t_i][t_j].parent == null){
-			//System.out.println("here1");
+
 			return null;
 		}
 		else{
-			//System.out.println("here");
+
 			//we build up a path by back tracing the nodes.
 			Path path = new Path();
 			Node target = nodes[t_i][t_j];

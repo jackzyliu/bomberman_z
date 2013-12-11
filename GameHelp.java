@@ -9,7 +9,11 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
-
+/**
+ * This class is the help menu.
+ * @author Zheyuan Liu
+ *
+ */
 @SuppressWarnings("serial")
 public class GameHelp extends JPanel{
 	public static final String file = "Menu/Help.jpg";

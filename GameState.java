@@ -8,5 +8,6 @@ public enum GameState {
 	MENU,
 	ONEP,
 	TWOP,
-	HELP;
+	HELP,
+	GENERAL;
 }

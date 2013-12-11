@@ -6,7 +6,11 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-
+/**
+ * This class specifies the behavior of power-ups.
+ * @author Zheyuan Liu
+ *
+ */
 public class Powerup extends GameObj{
 	public static final int OBJ_WIDTH = 40;
 	public static final int OBJ_HEIGHT = 40;

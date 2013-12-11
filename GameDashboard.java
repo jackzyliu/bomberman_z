@@ -15,7 +15,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-
+/**
+ * This class is the dashboard for each game. It shows the time, players' scores
+ * and the number of creeps left in the one-player mode.
+ * @author Zheyuan Liu
+ *
+ */
 @SuppressWarnings("serial")
 public class GameDashboard extends JPanel{
 	
