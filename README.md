@@ -5,7 +5,7 @@
 
 This game is a simple implementation of the classic battle arena video game, Bomberman, originally developed and published by Hudson Soft in 1983. Since then, different companies and individuals have published over 70 different revisions, including the famous PopTag by [Nexon](https://www.nexon.com). I built it as the final project for the intro CS class at UPenn. 
 
-![menu](https://github.com/jackzyliu/bomberman_z/tree/master/resource/screenshot/menu_20210417.png)
+![menu](https://github.com/jackzyliu/bomberman_z/blob/master/resource/screenshot/menu_20210417.png)
 
 ![map-select](https://github.com/jackzyliu/bomberman_z/blob/master/resource/screenshot/map_select_20210417.png)
 
