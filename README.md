@@ -1,4 +1,5 @@
-## Bomberman-Z, UPenn CIS120 Final Project
+## Bomberman-Z
+#### UPenn CIS120 Final Project
 #### Author: Jack Zheyuan Liu
 #### Created: Dec 10, 2013
 
