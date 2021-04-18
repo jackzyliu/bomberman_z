@@ -22,15 +22,15 @@ import javax.swing.JPanel;
 @SuppressWarnings("serial")
 public class GameMenu extends JPanel {
 	
-	public static final String img_file = "Menu/bomberman.jpg";
-	public static final String one_player_normal = "Buttons/one_p_button.png";
-	public static final String two_player_normal = "Buttons/two_p_button.png";
-	public static final String help_normal = "Buttons/help_button.png";
-	public static final String general_normal = "Buttons/general_info.png";
-	public static final String one_player_hover = "Buttons/one_p_button_hover.png";
-	public static final String two_player_hover = "Buttons/two_p_button_hover.png";
-	public static final String help_hover = "Buttons/help_button_hover.png";
-	public static final String general_hover = "Buttons/general_info_hover.png";
+	public static final String img_file = "resource/image/Menu/bomberman.jpg";
+	public static final String one_player_normal = "resource/image/Buttons/one_p_button.png";
+	public static final String two_player_normal = "resource/image/Buttons/two_p_button.png";
+	public static final String help_normal = "resource/image/Buttons/help_button.png";
+	public static final String general_normal = "resource/image/Buttons/general_info.png";
+	public static final String one_player_hover = "resource/image/Buttons/one_p_button_hover.png";
+	public static final String two_player_hover = "resource/image/Buttons/two_p_button_hover.png";
+	public static final String help_hover = "resource/image/Buttons/help_button_hover.png";
+	public static final String general_hover = "resource/image/Buttons/general_info_hover.png";
 	
 	public static final int MENU_WIDTH = Map.COURT_WIDTH + GameDashboard.WIDTH;
 	public static final int MENU_HEIGHT = Map.COURT_HEIGHT;

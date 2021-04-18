@@ -16,7 +16,7 @@ import javax.swing.JPanel;
  */
 @SuppressWarnings("serial")
 public class GameHelp extends JPanel{
-	public static final String file = "Menu/Help.jpg";
+	public static final String file = "resource/image/Menu/Help.jpg";
 	public static final int BUTTON_X = 0;
 	public static final int BUTTON_Y = 0;
 	public static final int BUTTON_WIDTH = 120;

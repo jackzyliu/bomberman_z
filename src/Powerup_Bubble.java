@@ -7,7 +7,7 @@ import javax.imageio.ImageIO;
 
 
 public class Powerup_Bubble extends Powerup {
-	public static final String img_file = "Powerups/BombPowerup.png";
+	public static final String img_file = "resource/image/Powerups/BombPowerup.png";
 	private static BufferedImage img;
 	private boolean visible;
 	

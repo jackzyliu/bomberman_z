@@ -11,7 +11,7 @@ import javax.imageio.ImageIO;
  *
  */
 public class GameGeneral extends GameHelp {
-	public static final String file = "Menu/General_info.jpg";
+	public static final String file = "resource/image/Menu/General_info.jpg";
 	private BufferedImage img;
 	public GameGeneral(){
 		super();

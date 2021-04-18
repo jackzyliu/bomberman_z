@@ -7,7 +7,7 @@ import javax.imageio.ImageIO;
 
 
 public class Powerup_Explosion extends Powerup{
-	public static final String img_file = "Powerups/FlamePowerup.png";
+	public static final String img_file = "resource/image/Powerups/FlamePowerup.png";
 	private static BufferedImage img;
 	private boolean visible;
 	

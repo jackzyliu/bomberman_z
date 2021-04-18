@@ -44,15 +44,15 @@ public class GameDashboard extends JPanel{
 	public static final int HEIGHT = Map.HEIGHT;
 	
 	//image files
-	public static final String colon_img = "Numbers/colon.png";
-	public static final String bg_img = "Menu/timer_background.png";
-	public static final String frame_img = "Menu/timer_frame.png";
-	public static final String scoreboard1_img = "Menu/player1_score_board.png";
-	public static final String scoreboard2_img = "Menu/player2_score_board.png";
-	public static final String creepboard_img = "Menu/creep_scoreboard.png";
-	public static final String decoration_img = "Misc/bomberman_decoration.png";
-	public static final String quit_img = "Buttons/QUIT.png";
-	public static final String quit_hover_img = "Buttons/QUIT_HOVER.png";
+	public static final String colon_img = "resource/image/Numbers/colon.png";
+	public static final String bg_img = "resource/image/Menu/timer_background.png";
+	public static final String frame_img = "resource/image/Menu/timer_frame.png";
+	public static final String scoreboard1_img = "resource/image/Menu/player1_score_board.png";
+	public static final String scoreboard2_img = "resource/image/Menu/player2_score_board.png";
+	public static final String creepboard_img = "resource/image/Menu/creep_scoreboard.png";
+	public static final String decoration_img = "resource/image/Misc/bomberman_decoration.png";
+	public static final String quit_img = "resource/image/Buttons/quit.png";
+	public static final String quit_hover_img = "resource/image/Buttons/quit_hover.png";
 	
 	//image constants
 	public static final int NUM_WIDTH = 30;
@@ -115,7 +115,7 @@ public class GameDashboard extends JPanel{
 					nums[i] = ImageIO.read(new File(colon_img));
 				}
 				else{
-					String file_name = "Numbers/num_" +
+					String file_name = "resource/image/Numbers/num_" +
 										Integer.toString(i) +
 										".png";
 											

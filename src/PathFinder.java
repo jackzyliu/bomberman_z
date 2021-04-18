@@ -91,6 +91,7 @@ public class PathFinder {
 						
 						//if the next_cost is lower than the cost of this neighbor
 						//determined previously, this node needs to be reevaluated
+						//and re-processed
 						if(next_cost < neighbor.path_cost){
 							if(unchecked.contains(neighbor)){
 								unchecked.remove(neighbor);

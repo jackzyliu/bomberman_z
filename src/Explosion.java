@@ -27,7 +27,7 @@ public class Explosion extends Bubble {
 		try{
 			imgs = new BufferedImage[5];
 			for(int i = 0; i < imgs.length; i ++){
-				String img_file = "Flame/Flame_f0" + Integer.toString(i) + ".png";
+				String img_file = "resource/image/Flame/Flame_f0" + Integer.toString(i) + ".png";
 				imgs[i] = ImageIO.read(new File(img_file));
 			}
 		}catch(IOException e){

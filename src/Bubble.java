@@ -12,7 +12,7 @@ import javax.imageio.ImageIO;
  *
  */
 public class Bubble extends GameObj {
-	public static final String img_file = "Bombs/Bomb_f01.png";
+	public static final String img_file = "resource/image/Bombs/Bomb_f01.png";
 	public static final int OBJ_WIDTH = 40;
 	public static final int OBJ_HEIGHT = 40;
 	

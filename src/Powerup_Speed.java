@@ -7,7 +7,7 @@ import javax.imageio.ImageIO;
 
 
 public class Powerup_Speed extends Powerup{
-	public static final String img_file = "Powerups/SpeedPowerup.png";
+	public static final String img_file = "resource/image/Powerups/SpeedPowerup.png";
 	private static BufferedImage img;
 	private boolean visible;
 	

@@ -36,10 +36,10 @@ public class Map {
 	public static final char RANGEUP = 'r';			//range up item
 	public static final char NUMUP = 'n';			//num up item
 	
-	public static final String WALL_img_file = "Blocks/SolidBlock.png";
-	public static final String TREE_img_file = "Blocks/tree.png";
-	public static final String BLOCK_img_file = "Blocks/ExplodableBlock.png";
-	public static final String GROUND_img_file = "Blocks/BackgroundTile.png";
+	public static final String WALL_img_file = "resource/image/Blocks/SolidBlock.png";
+	public static final String TREE_img_file = "resource/image/Blocks/Tree.png";
+	public static final String BLOCK_img_file = "resource/image/Blocks/ExplodableBlock.png";
+	public static final String GROUND_img_file = "resource/image/Blocks/BackgroundTile.png";
 	
 	public static final int WIDTH = 12;
 	public static final int HEIGHT = 12;

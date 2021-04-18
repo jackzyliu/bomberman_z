@@ -25,7 +25,7 @@ import javax.imageio.ImageIO;
  */
 public class Creep_AI extends Player{
 	
-	public static final String dead_img = "Character/dead_player.gif";
+	public static final String dead_img = "resource/image/Character/dead_player.gif";
 
 	private enum CreepState {
 		NORMAL,
@@ -56,18 +56,18 @@ public class Creep_AI extends Player{
 			
 			for (int i = 0 ; i < front.length; i ++){
 				img_file = 
-						"Creep/Front/Creep_F_f0"+Integer.toString(i)+".png";
+						"resource/image/Creep/Front/Creep_F_f0"+Integer.toString(i)+".png";
 				front[i] = ImageIO.read(new File(img_file));
 			}
 			
 			for (int i = 0 ; i < back.length; i ++){
 				img_file = 
-						"Creep/Back/Creep_B_f0"+Integer.toString(i)+".png";
+						"resource/image/Creep/Back/Creep_B_f0"+Integer.toString(i)+".png";
 				back[i] = ImageIO.read(new File(img_file));
 			}
 			for (int i = 0 ; i < right.length; i ++){
 				img_file = 
-						"Creep/Side/Creep_S_f0"+Integer.toString(i)+".png";
+						"resource/image/Creep/Side/Creep_S_f0"+Integer.toString(i)+".png";
 				right[i] = ImageIO.read(new File(img_file));
 			}
 			

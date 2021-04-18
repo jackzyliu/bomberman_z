@@ -22,19 +22,19 @@ import javax.swing.JPanel;
 public class GameMapOpt extends JPanel{
 	
 	//file paths
-	public static final String map_files = "map_files.txt";
-	public static final String background_img = "Menu/map_select.png";
-	public static final String logo_img = "Misc/GAWESOME.jpg";
-	public static final String title_img = "Menu/map_select_title.png";
+	public static final String map_files = "resource/map_files.txt";
+	public static final String background_img = "resource/image/Menu/map_select.png";
+	public static final String logo_img = "resource/image/Misc/GAWESOME.jpg";
+	public static final String title_img = "resource/image/Menu/map_select_title.png";
 	//Button images
-	public static final String l_img = "Buttons/LEFT_ARROW.png";
-	public static final String r_img = "Buttons/RIGHT_ARROW.png";
-	public static final String l_h_img = "Buttons/LEFT_ARROW_HOVER.png";
-	public static final String r_h_img = "Buttons/RIGHT_ARROW_HOVER.png";
-	public static final String s_img = "Buttons/START.png";
-	public static final String q_img = "Buttons/QUIT.png";
-	public static final String s_h_img = "Buttons/START_HOVER.png";
-	public static final String q_h_img = "Buttons/QUIT_HOVER.png";
+	public static final String l_img = "resource/image/Buttons/left_arrow.png";
+	public static final String r_img = "resource/image/Buttons/right_arrow.png";
+	public static final String l_h_img = "resource/image/Buttons/left_arrow_hover.png";
+	public static final String r_h_img = "resource/image/Buttons/right_arrow_hover.png";
+	public static final String s_img = "resource/image/Buttons/start.png";
+	public static final String q_img = "resource/image/Buttons/quit.png";
+	public static final String s_h_img = "resource/image/Buttons/start_hover.png";
+	public static final String q_h_img = "resource/image/Buttons/quite_hover.png";
 	
 	private static final int SPACE = 20;
 	

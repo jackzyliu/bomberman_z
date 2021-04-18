@@ -32,7 +32,7 @@ import javax.imageio.ImageIO;
  */
 public class Player extends GameObj {
 	
-	 public static final String dead_img = "Character/dead_player.gif";
+	 public static final String dead_img = "resource/image/Character/dead_player.gif";
 	 
 	
 	/**
@@ -126,18 +126,18 @@ public class Player extends GameObj {
 			
 			for (int i = 0 ; i < front.length; i ++){
 				img_file = 
-						"Character/Front/Bman_F_f0"+Integer.toString(i)+".png";
+						"resource/image/Character/Front/Bman_F_f0"+Integer.toString(i)+".png";
 				front[i] = ImageIO.read(new File(img_file));
 			}
 			
 			for (int i = 0 ; i < back.length; i ++){
 				img_file = 
-						"Character/Back/Bman_B_f0"+Integer.toString(i)+".png";
+						"resource/image/Character/Back/Bman_B_f0"+Integer.toString(i)+".png";
 				back[i] = ImageIO.read(new File(img_file));
 			}
 			for (int i = 0 ; i < right.length; i ++){
 				img_file = 
-						"Character/Side/Bman_F_f0"+Integer.toString(i)+".png";
+						"resource/image/Character/Side/Bman_F_f0"+Integer.toString(i)+".png";
 				right[i] = ImageIO.read(new File(img_file));
 			}
 			
@@ -549,7 +549,7 @@ public class Player extends GameObj {
 		if(state == PlayerState.DEAD){
 			death_time --;  //count down death time
 			if(death_time > DEATH_PEN - 100){
-				dead_display  = true;		//display image
+				dead_display  = true;		//display image for 1 sec
 			}
 			else {
 				dead_display = false;
