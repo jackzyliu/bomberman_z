@@ -346,7 +346,6 @@ public class Map {
 	 */
 	public boolean receiveInitBubbles(int i, int j, int player_code, int range){
 		if (map[i][j] != GROUND){
-			System.out.println("here");
 			return false;
 		}
 		else{
